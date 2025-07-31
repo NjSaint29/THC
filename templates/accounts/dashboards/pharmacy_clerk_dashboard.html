@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+
+{% block title %}Pharmacy Clerk Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-pills"></i> Prescriptions
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-tasks"></i> Campaigns
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-pills"></i> Pharmacy Clerk Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-warning ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-pills fa-3x mb-3"></i>
+                    <h5>Pending Prescriptions</h5>
+                    <p>View prescriptions to dispense</p>
+                    <a href="{% url 'consultations:dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-pills"></i> View Prescriptions
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Search Patients</h5>
+                    <p>Find patient prescriptions</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-search"></i> Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-3x mb-3"></i>
+                    <h5>Drug Inventory</h5>
+                    <p>Manage drug stock</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-box"></i> Inventory
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <h5>Dispensing Reports</h5>
+                    <p>View dispensing statistics</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Pharmacy Clerk Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Pharmacy Clerk</strong>, you are responsible for dispensing medications prescribed by doctors and maintaining accurate drug inventory records.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Prescription Dispensing:</strong> Process and dispense medications
+                            <ul>
+                                <li>Review prescriptions for accuracy and completeness</li>
+                                <li>Verify patient identity and prescription details</li>
+                                <li>Dispense correct medications with proper labeling</li>
+                                <li>Provide patient counseling on medication use</li>
+                            </ul>
+                        </li>
+                        <li><strong>Inventory Management:</strong> Maintain drug stock levels
+                            <ul>
+                                <li>Monitor drug inventory levels</li>
+                                <li>Track medication expiration dates</li>
+                                <li>Record dispensing activities</li>
+                                <li>Report stock shortages</li>
+                            </ul>
+                        </li>
+                        <li><strong>Documentation:</strong> Maintain accurate records
+                            <ul>
+                                <li>Record all dispensing activities</li>
+                                <li>Update patient medication histories</li>
+                                <li>Track controlled substance usage</li>
+                                <li>Generate dispensing reports</li>
+                            </ul>
+                        </li>
+                        <li><strong>Patient Safety:</strong> Ensure safe medication practices
+                            <ul>
+                                <li>Check for drug allergies and interactions</li>
+                                <li>Verify dosages and administration routes</li>
+                                <li>Provide medication counseling</li>
+                                <li>Report adverse drug reactions</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h6>Dispensing Workflow:</h6>
+                    <ol>
+                        <li>Receive prescription from doctor or patient</li>
+                        <li>Verify prescription details and patient identity</li>
+                        <li>Check drug availability and expiration dates</li>
+                        <li>Prepare and label medications accurately</li>
+                        <li>Counsel patient on proper medication use</li>
+                        <li>Record dispensing in system and update inventory</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-check"></i> Dispensing Checklist</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Before Dispensing:</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Verify patient identity
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Check prescription validity
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Verify drug availability
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Check expiration dates
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Review allergies/interactions
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Prepare accurate dosage
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Label medication properly
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Counsel patient on use
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Patient Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'patients:list' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Patient ID or Name</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search_query" 
+                                   placeholder="Enter Patient ID or Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Status -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Pharmacy Module Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Module Under Development</h6>
+                        <p>The full Pharmacy and Dispensing module is currently under development. In the meantime, you can:</p>
+                        <ul>
+                            <li>View prescriptions created by doctors in the consultation module</li>
+                            <li>Access patient information to verify prescription details</li>
+                            <li>Review campaign formularies to see available medications</li>
+                            <li>Use the admin panel to manage drug inventory</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Current Capabilities:</h6>
+                            <ul>
+                                <li>View prescriptions from consultations</li>
+                                <li>Access patient demographic information</li>
+                                <li>Review campaign drug formularies</li>
+                                <li>Basic inventory management via admin</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Coming Soon:</h6>
+                            <ul>
+                                <li>Prescription dispensing interface</li>
+                                <li>Inventory tracking and alerts</li>
+                                <li>Dispensing history and reports</li>
+                                <li>Drug interaction checking</li>
+                                <li>Patient counseling documentation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'consultations:dashboard' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-pills"></i> View Prescriptions
+                        </a>
+                        <a href="{% url 'admin:campaigns_drug_changelist' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-cog"></i> Manage Drug Inventory
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus quick search
+document.getElementById('quickSearch').focus();
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

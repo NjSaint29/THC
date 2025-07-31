@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ campaign.name }} - Campaign Details{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-tasks"></i> Campaigns
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-eye"></i> Campaign Details
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tasks"></i> {{ campaign.name }}</h1>
+                <div>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Back to Campaigns
+                    </a>
+                    {% if perms.campaigns.change_campaign %}
+                        <a href="{% url 'campaigns:edit' campaign.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Campaign
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Overview -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Campaign Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Health Area:</strong> {{ campaign.health_area }}</p>
+                            <p><strong>Status:</strong> 
+                                {% if campaign.status == 'draft' %}
+                                    <span class="badge bg-secondary">{{ campaign.get_status_display }}</span>
+                                {% elif campaign.status == 'active' %}
+                                    <span class="badge bg-success">{{ campaign.get_status_display }}</span>
+                                {% elif campaign.status == 'completed' %}
+                                    <span class="badge bg-primary">{{ campaign.get_status_display }}</span>
+                                {% elif campaign.status == 'cancelled' %}
+                                    <span class="badge bg-danger">{{ campaign.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ campaign.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Start Date:</strong> {{ campaign.start_date|date:"F d, Y" }}</p>
+                            <p><strong>End Date:</strong> {{ campaign.end_date|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Created By:</strong> {{ campaign.created_by.get_full_name|default:campaign.created_by.username }}</p>
+                            <p><strong>Created:</strong> {{ campaign.created_at|date:"F d, Y g:i A" }}</p>
+                            <p><strong>Last Updated:</strong> {{ campaign.updated_at|date:"F d, Y g:i A" }}</p>
+                            {% if campaign.max_patients %}
+                                <p><strong>Max Patients:</strong> {{ campaign.max_patients }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if campaign.description %}
+                        <div class="mt-3">
+                            <strong>Description:</strong>
+                            <p class="mt-2">{{ campaign.description|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if campaign.consent_text %}
+                        <div class="mt-3">
+                            <strong>Consent Text:</strong>
+                            <div class="border rounded p-3 mt-2 bg-light">
+                                {{ campaign.consent_text|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Campaign Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <h3 class="text-primary">{{ campaign.patient_count }}</h3>
+                            <p class="text-muted">Registered Patients</p>
+                        </div>
+                        
+                        {% if campaign.is_active %}
+                            <div class="mb-3">
+                                <h4 class="text-success">{{ campaign.days_remaining }}</h4>
+                                <p class="text-muted">Days Remaining</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <h4 class="text-info">{{ lab_tests.count }}</h4>
+                            <p class="text-muted">Available Lab Tests</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h4 class="text-warning">{{ formulary.count }}</h4>
+                            <p class="text-muted">Formulary Drugs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Tests Configuration -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-flask"></i> Lab Tests Configuration</h5>
+                </div>
+                <div class="card-body">
+                    {% if lab_tests %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Code</th>
+                                        <th>Category</th>
+                                        <th>Normal Range</th>
+                                        <th>Unit</th>
+                                        <th>Default</th>
+                                        <th>Order</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for campaign_test in lab_tests %}
+                                    <tr>
+                                        <td><strong>{{ campaign_test.lab_test.name }}</strong></td>
+                                        <td><code>{{ campaign_test.lab_test.code }}</code></td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ campaign_test.lab_test.get_category_display }}</span>
+                                        </td>
+                                        <td>{{ campaign_test.lab_test.normal_range|default:"-" }}</td>
+                                        <td>{{ campaign_test.lab_test.unit|default:"-" }}</td>
+                                        <td>
+                                            {% if campaign_test.is_default %}
+                                                <span class="badge bg-success">Default</span>
+                                            {% else %}
+                                                <span class="text-muted">Optional</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ campaign_test.order }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-flask fa-3x mb-3"></i>
+                            <p>No lab tests configured for this campaign.</p>
+                            {% if perms.campaigns.change_campaign %}
+                                <a href="{% url 'campaigns:edit' campaign.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Add Lab Tests
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Formulary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-pills"></i> Drug Formulary</h5>
+                </div>
+                <div class="card-body">
+                    {% if formulary %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Drug Name</th>
+                                        <th>Generic Name</th>
+                                        <th>Strength</th>
+                                        <th>Dosage Form</th>
+                                        <th>Category</th>
+                                        <th>Preferred</th>
+                                        <th>Stock</th>
+                                        <th>Order</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for campaign_drug in formulary %}
+                                    <tr>
+                                        <td><strong>{{ campaign_drug.drug.name }}</strong></td>
+                                        <td>{{ campaign_drug.drug.generic_name|default:"-" }}</td>
+                                        <td>{{ campaign_drug.drug.strength|default:"-" }}</td>
+                                        <td>{{ campaign_drug.drug.dosage_form|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ campaign_drug.drug.get_category_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if campaign_drug.is_preferred %}
+                                                <span class="badge bg-success">Preferred</span>
+                                            {% else %}
+                                                <span class="text-muted">Standard</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if campaign_drug.stock_quantity %}
+                                                {{ campaign_drug.stock_quantity }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ campaign_drug.order }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-pills fa-3x mb-3"></i>
+                            <p>No drugs configured for this campaign formulary.</p>
+                            {% if perms.campaigns.change_campaign %}
+                                <a href="{% url 'campaigns:edit' campaign.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Add Drugs
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:list' %}?campaign={{ campaign.pk }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-users"></i><br>
+                                View Patients
+                            </a>
+                        </div>
+                        {% if perms.campaigns.change_campaign %}
+                        <div class="col-md-3">
+                            <a href="{% url 'campaigns:edit' campaign.pk %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-edit"></i><br>
+                                Edit Campaign
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100" onclick="window.print()">
+                                <i class="fas fa-print"></i><br>
+                                Print Details
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'campaigns:list' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-list"></i><br>
+                                All Campaigns
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

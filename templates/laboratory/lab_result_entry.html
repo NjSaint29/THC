@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+
+{% block title %}Lab Result Entry - {{ lab_order.get_test_name }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'accounts:dashboard' %}">
+                    <i class="fas fa-flask"></i> Lab Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'laboratory:lab_order_search' %}">Lab Orders</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Result Entry - {{ lab_order.get_test_name }}
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>
+                    <i class="fas fa-vial"></i> Lab Result Entry
+                </h1>
+                <div class="text-muted">
+                    <span class="badge bg-info fs-6">{{ lab_order.get_lab_status_display }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Lab Order Details -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Lab Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Patient:</strong><br>
+                        <span class="badge bg-primary">{{ lab_order.consultation.patient.patient_id }}</span>
+                        {{ lab_order.consultation.patient.get_full_name }}
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Test:</strong><br>
+                        {{ lab_order.get_test_name }}
+                        {% if lab_order.get_test_category != "Custom Test" %}
+                            <br><small class="text-muted">{{ lab_order.get_test_category|title }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Ordered By:</strong><br>
+                        {{ lab_order.consultation.doctor.get_full_name }}
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Order Date:</strong><br>
+                        {{ lab_order.ordered_date|date:"M d, Y g:i A" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Urgency:</strong><br>
+                        {% if lab_order.urgency == 'stat' %}
+                            <span class="badge bg-danger">STAT</span>
+                        {% elif lab_order.urgency == 'urgent' %}
+                            <span class="badge bg-warning">Urgent</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Routine</span>
+                        {% endif %}
+                    </div>
+
+                    {% if lab_order.clinical_indication %}
+                    <div class="mb-3">
+                        <strong>Clinical Indication:</strong><br>
+                        <small>{{ lab_order.clinical_indication }}</small>
+                    </div>
+                    {% endif %}
+
+                    {% if lab_order.notes %}
+                    <div class="mb-3">
+                        <strong>Order Notes:</strong><br>
+                        <small>{{ lab_order.notes }}</small>
+                    </div>
+                    {% endif %}
+
+                    {% if lab_order.get_specimen_type %}
+                    <div class="mb-3">
+                        <strong>Specimen Type:</strong><br>
+                        {{ lab_order.get_specimen_type }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Patient Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Age:</strong> {{ lab_order.consultation.patient.age }} years
+                    </div>
+                    <div class="mb-2">
+                        <strong>Gender:</strong> {{ lab_order.consultation.patient.get_gender_display }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Campaign:</strong> {{ lab_order.consultation.patient.campaign.name }}
+                    </div>
+                    {% if lab_order.consultation.patient.clinical_parameters %}
+                    <div class="mb-2">
+                        <strong>Vitals:</strong><br>
+                        <small>
+                            BP: {{ lab_order.consultation.patient.clinical_parameters.blood_pressure_systolic }}/{{ lab_order.consultation.patient.clinical_parameters.blood_pressure_diastolic }} mmHg<br>
+                            HR: {{ lab_order.consultation.patient.clinical_parameters.heart_rate }} bpm<br>
+                            Temp: {{ lab_order.consultation.patient.clinical_parameters.temperature }}°C
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Entry Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-edit"></i>
+                        {% if lab_result %}Edit Lab Result{% else %}Enter Lab Result{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="lab-result-form">
+                        {% csrf_token %}
+
+                        <!-- Result Value -->
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="{{ form.result_value.id_for_label }}" class="form-label">
+                                    <strong>Result Value *</strong>
+                                </label>
+                                {{ form.result_value }}
+                                {% if form.result_value.errors %}
+                                    <div class="text-danger small">{{ form.result_value.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.result_unit.id_for_label }}" class="form-label">Unit</label>
+                                {{ form.result_unit }}
+                                {% if form.result_unit.errors %}
+                                    <div class="text-danger small">{{ form.result_unit.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Reference Range -->
+                        <div class="mb-3">
+                            <label for="{{ form.reference_range.id_for_label }}" class="form-label">
+                                Reference Range
+                            </label>
+                            {{ form.reference_range }}
+                            {% if form.reference_range.errors %}
+                                <div class="text-danger small">{{ form.reference_range.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Interpretation and Quality -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-chart-line"></i> Interpretation & Quality</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.interpretation.id_for_label }}" class="form-label">
+                                    Interpretation
+                                </label>
+                                {{ form.interpretation }}
+                                {% if form.interpretation.errors %}
+                                    <div class="text-danger small">{{ form.interpretation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.sample_quality.id_for_label }}" class="form-label">
+                                    Sample Quality
+                                </label>
+                                {{ form.sample_quality }}
+                                {% if form.sample_quality.errors %}
+                                    <div class="text-danger small">{{ form.sample_quality.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.test_method.id_for_label }}" class="form-label">
+                                    Test Method
+                                </label>
+                                {{ form.test_method }}
+                                {% if form.test_method.errors %}
+                                    <div class="text-danger small">{{ form.test_method.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Clinical Notes -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-notes-medical"></i> Clinical Information</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.technician_notes.id_for_label }}" class="form-label">
+                                    Technician Notes
+                                </label>
+                                {{ form.technician_notes }}
+                                {% if form.technician_notes.errors %}
+                                    <div class="text-danger small">{{ form.technician_notes.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.clinical_conclusion.id_for_label }}" class="form-label">
+                                    Clinical Conclusion
+                                </label>
+                                {{ form.clinical_conclusion }}
+                                {% if form.clinical_conclusion.errors %}
+                                    <div class="text-danger small">{{ form.clinical_conclusion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Status and Critical Value -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-flag"></i> Status & Alerts</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    Result Status
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger small">{{ form.status.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    {{ form.is_critical }}
+                                    <label class="form-check-label" for="{{ form.is_critical.id_for_label }}">
+                                        <strong class="text-danger">Critical Value - Requires Immediate Notification</strong>
+                                    </label>
+                                    {% if form.is_critical.errors %}
+                                        <div class="text-danger small">{{ form.is_critical.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    Check this box if the result is critically abnormal and requires immediate physician notification.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="row">
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> 
+                                        {% if lab_result %}Update{% else %}Save{% endif %} Result
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Test Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Test Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Test Name:</strong><br>
+                        {{ lab_order.get_test_name }}
+                        {% if lab_order.custom_test_name %}
+                            <span class="badge bg-info ms-2">Custom Test</span>
+                        {% endif %}
+                    </div>
+                    {% if lab_order.lab_test %}
+                        <div class="mb-3">
+                            <strong>Test Code:</strong><br>
+                            {{ lab_order.lab_test.code }}
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <strong>Category:</strong><br>
+                        {{ lab_order.get_test_category }}
+                    </div>
+                    {% if lab_order.lab_test and lab_order.lab_test.normal_range %}
+                        <div class="mb-3">
+                            <strong>Normal Range:</strong><br>
+                            {{ lab_order.lab_test.normal_range }}
+                        </div>
+                    {% elif lab_order.custom_test_name %}
+                        <div class="mb-3">
+                            <strong>Reference Range:</strong><br>
+                            <span class="text-muted">Please enter appropriate reference range for this custom test</span>
+                        </div>
+                    {% endif %}
+                    {% if lab_order.lab_test and lab_order.lab_test.unit %}
+                        <div class="mb-3">
+                            <strong>Unit:</strong><br>
+                            {{ lab_order.lab_test.unit }}
+                        </div>
+                    {% endif %}
+                    {% if lab_order.lab_test and lab_order.lab_test.description %}
+                        <div class="mb-3">
+                            <strong>Description:</strong><br>
+                            <small class="text-muted">{{ lab_order.lab_test.description }}</small>
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    <div class="mb-3">
+                        <strong>Ordered Date:</strong><br>
+                        {{ lab_order.ordered_date|date:"M d, Y H:i" }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Ordered by:</strong><br>
+                        {{ lab_order.consultation.doctor.get_full_name|default:lab_order.consultation.doctor.username }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Guide -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-book"></i> Quick Reference</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Interpretation Guide:</h6>
+                    <small>
+                        <strong>Normal:</strong> Within reference range<br>
+                        <strong>Abnormal Low:</strong> Below normal<br>
+                        <strong>Abnormal High:</strong> Above normal<br>
+                        <strong>Critical Low:</strong> Dangerously low<br>
+                        <strong>Critical High:</strong> Dangerously high<br>
+                        <strong>Inconclusive:</strong> Needs repeat<br><br>
+                        
+                        <strong>Sample Quality:</strong><br>
+                        • Good: Acceptable for testing<br>
+                        • Acceptable: Minor issues<br>
+                        • Poor: Repeat required<br>
+                        • Hemolyzed: Blood breakdown<br>
+                        • Clotted: Sample clotted<br>
+                        • Insufficient: Not enough sample
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-populate reference range and unit from test info
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on result value field
+    document.getElementById('id_result_value').focus();
+    
+    // Show/hide critical value warning
+    const criticalCheckbox = document.getElementById('id_is_critical');
+    const interpretationSelect = document.getElementById('id_interpretation');
+    
+    function checkCriticalValue() {
+        const interpretation = interpretationSelect.value;
+        if (interpretation === 'critical_low' || interpretation === 'critical_high') {
+            criticalCheckbox.checked = true;
+            showCriticalWarning();
+        }
+    }
+    
+    function showCriticalWarning() {
+        if (criticalCheckbox.checked) {
+            if (!document.getElementById('critical-warning')) {
+                const warning = document.createElement('div');
+                warning.id = 'critical-warning';
+                warning.className = 'alert alert-danger mt-2';
+                warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Critical Value Alert:</strong> This result will require immediate physician notification.';
+                criticalCheckbox.closest('.col-md-6').appendChild(warning);
+            }
+        } else {
+            const warning = document.getElementById('critical-warning');
+            if (warning) {
+                warning.remove();
+            }
+        }
+    }
+    
+    interpretationSelect.addEventListener('change', checkCriticalValue);
+    criticalCheckbox.addEventListener('change', showCriticalWarning);
+    
+    // Initial check
+    checkCriticalValue();
+    showCriticalWarning();
+});
+</script>
+{% endblock %}

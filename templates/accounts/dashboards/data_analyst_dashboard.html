@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Analyst Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-chart-bar"></i> Campaign Reports
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patient Data
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Clinical Data
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-chart-line"></i> Data Analyst Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-info ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <h5>Campaign Analytics</h5>
+                    <p>View campaign performance</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>Patient Demographics</h5>
+                    <p>Analyze patient data</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-users"></i> Demographics
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-flask fa-3x mb-3"></i>
+                    <h5>Lab Results</h5>
+                    <p>Laboratory data analysis</p>
+                    <a href="{% url 'laboratory:dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-flask"></i> Lab Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-download fa-3x mb-3"></i>
+                    <h5>Export Data</h5>
+                    <p>Download reports</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-download"></i> Export
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Data Analyst Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Data Analyst</strong>, you are responsible for analyzing health campaign data, generating insights, and creating reports for stakeholders.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Data Analysis:</strong> Analyze campaign and patient data
+                            <ul>
+                                <li>Patient demographic analysis</li>
+                                <li>Health outcomes assessment</li>
+                                <li>Campaign performance metrics</li>
+                                <li>Resource utilization analysis</li>
+                            </ul>
+                        </li>
+                        <li><strong>Report Generation:</strong> Create comprehensive reports
+                            <ul>
+                                <li>Campaign summary reports</li>
+                                <li>Patient demographic reports</li>
+                                <li>Clinical outcomes analysis</li>
+                                <li>Laboratory results summaries</li>
+                            </ul>
+                        </li>
+                        <li><strong>Data Visualization:</strong> Present data in meaningful ways
+                            <ul>
+                                <li>Create charts and graphs</li>
+                                <li>Design dashboards</li>
+                                <li>Develop trend analyses</li>
+                                <li>Build comparative studies</li>
+                            </ul>
+                        </li>
+                        <li><strong>Quality Assurance:</strong> Ensure data integrity
+                            <ul>
+                                <li>Validate data accuracy</li>
+                                <li>Identify data inconsistencies</li>
+                                <li>Monitor data completeness</li>
+                                <li>Recommend data improvements</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h6>Analysis Categories:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Descriptive Analytics:</strong> What happened?</li>
+                                <li><strong>Diagnostic Analytics:</strong> Why did it happen?</li>
+                                <li><strong>Predictive Analytics:</strong> What might happen?</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li><strong>Patient Demographics:</strong> Age, gender, location</li>
+                                <li><strong>Health Outcomes:</strong> Diagnoses, treatments</li>
+                                <li><strong>Operational Metrics:</strong> Efficiency, throughput</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Key Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Campaign Performance:</h6>
+                    <ul>
+                        <li>Patient registration rate</li>
+                        <li>Consultation completion rate</li>
+                        <li>Lab test utilization</li>
+                        <li>Prescription patterns</li>
+                        <li>Follow-up compliance</li>
+                    </ul>
+                    
+                    <h6>Patient Demographics:</h6>
+                    <ul>
+                        <li>Age distribution</li>
+                        <li>Gender breakdown</li>
+                        <li>Geographic distribution</li>
+                        <li>Marital status patterns</li>
+                    </ul>
+                    
+                    <h6>Clinical Outcomes:</h6>
+                    <ul>
+                        <li>Common diagnoses</li>
+                        <li>Treatment effectiveness</li>
+                        <li>Lab result patterns</li>
+                        <li>Referral rates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-tools"></i> Analysis Tools</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="alert('Feature coming soon!')">
+                            <i class="fas fa-chart-bar"></i> Generate Campaign Report
+                        </button>
+                        <button class="btn btn-outline-success" onclick="alert('Feature coming soon!')">
+                            <i class="fas fa-users"></i> Demographics Analysis
+                        </button>
+                        <button class="btn btn-outline-info" onclick="alert('Feature coming soon!')">
+                            <i class="fas fa-flask"></i> Lab Results Summary
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="alert('Feature coming soon!')">
+                            <i class="fas fa-download"></i> Export to CSV
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="alert('Feature coming soon!')">
+                            <i class="fas fa-file-pdf"></i> Generate PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Analytics -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Sample Analytics Dashboard</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-primary">{{ total_patients|default:0 }}</h3>
+                                    <p class="mb-0">Total Patients</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success">{{ total_consultations|default:0 }}</h3>
+                                    <p class="mb-0">Consultations</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-info">{{ total_lab_results|default:0 }}</h3>
+                                    <p class="mb-0">Lab Results</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning">{{ total_prescriptions|default:0 }}</h3>
+                                    <p class="mb-0">Prescriptions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Common Analysis Tasks:</h6>
+                            <ul>
+                                <li>Patient flow analysis through campaign stages</li>
+                                <li>Age and gender distribution of participants</li>
+                                <li>Geographic coverage and reach assessment</li>
+                                <li>Most common diagnoses and health conditions</li>
+                                <li>Lab test utilization and abnormal result rates</li>
+                                <li>Prescription patterns and drug utilization</li>
+                                <li>Campaign efficiency and resource optimization</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Reporting Schedule:</h6>
+                            <ul>
+                                <li><strong>Daily:</strong> Patient registration and flow metrics</li>
+                                <li><strong>Weekly:</strong> Campaign progress and performance indicators</li>
+                                <li><strong>Monthly:</strong> Comprehensive health outcomes analysis</li>
+                                <li><strong>End of Campaign:</strong> Final impact assessment and recommendations</li>
+                            </ul>
+                            
+                            <h6 class="mt-3">Data Export Formats:</h6>
+                            <ul>
+                                <li>CSV files for statistical analysis</li>
+                                <li>PDF reports for stakeholder presentations</li>
+                                <li>Excel workbooks for detailed analysis</li>
+                                <li>JSON data for system integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'campaigns:list' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-chart-bar"></i> Start Data Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Sample chart placeholder - in a real implementation, you would use Chart.js or similar
+console.log('Data Analyst Dashboard Loaded');
+
+// Placeholder for future chart implementations
+function generateChart(type, data) {
+    console.log(`Generating ${type} chart with data:`, data);
+    // Implementation would go here
+}
+</script>
+{% endblock %}

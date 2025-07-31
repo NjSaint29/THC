@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+
+{% block title %}Pharmacy Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#" onclick="showPrescriptionSearch()">
+        <i class="fas fa-search"></i> Find Prescriptions
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#pending-prescriptions">
+        <i class="fas fa-clock"></i> Pending Review
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#ready-to-dispense">
+        <i class="fas fa-pills"></i> Ready to Dispense
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-pills"></i> Pharmacy Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-success ms-2">{{ user.role|title }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h3 id="pending-count">{{ pending_prescriptions.count }}</h3>
+                    <p>Pending Review</p>
+                    <a href="#pending-prescriptions" class="btn btn-light btn-sm">
+                        <i class="fas fa-eye"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <h3 id="details-needed-count">{{ details_needed_prescriptions.count }}</h3>
+                    <p>Details Needed</p>
+                    <a href="#details-needed" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Complete Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-pills fa-3x mb-3"></i>
+                    <h3 id="ready-count">{{ ready_prescriptions.count }}</h3>
+                    <p>Ready to Dispense</p>
+                    <a href="#ready-to-dispense" class="btn btn-light btn-sm">
+                        <i class="fas fa-hand-holding-medical"></i> Dispense
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h3 id="dispensed-count">{{ dispensed_today_count }}</h3>
+                    <p>Dispensed Today</p>
+                    <a href="#dispensed-today" class="btn btn-light btn-sm">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Patient Search</h5>
+                </div>
+                <div class="card-body">
+                    <form class="row g-3" id="patient-search-form">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="patient-search" 
+                                   placeholder="Enter Patient ID or Name" autocomplete="off">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted">
+                                <small>Search for patients to view their prescriptions and dispensing history</small>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="search-results" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Prescriptions -->
+    <div class="row mb-4" id="pending-prescriptions">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-clock text-warning"></i> Prescriptions Pending Review</h5>
+                    <span class="badge bg-warning fs-6">{{ pending_prescriptions.count }} prescription{{ pending_prescriptions.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if pending_prescriptions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Medication</th>
+                                        <th>Prescribed By</th>
+                                        <th>Date</th>
+                                        <th>Indication</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in pending_prescriptions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ prescription.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ prescription.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ prescription.get_drug_name }}</strong>
+                                            {% if prescription.get_drug_category != "Custom Medication" %}
+                                                <br><small class="text-muted">{{ prescription.get_drug_category|title }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ prescription.consultation.doctor.get_full_name }}</td>
+                                        <td>{{ prescription.created_at|date:"M d, Y g:i A" }}</td>
+                                        <td>{{ prescription.indication|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-warning">{{ prescription.get_pharmacy_status_display }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="reviewPrescription({{ prescription.id }})">
+                                                    <i class="fas fa-eye"></i> Review
+                                                </button>
+                                                {% if prescription.needs_pharmacy_review %}
+                                                    <button class="btn btn-outline-warning" onclick="completePrescription({{ prescription.id }})">
+                                                        <i class="fas fa-edit"></i> Complete
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-clock fa-3x mb-3"></i>
+                            <p>No prescriptions pending review at this time.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescriptions Needing Details -->
+    <div class="row mb-4" id="details-needed">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-exclamation-triangle text-danger"></i> Prescriptions Needing Dosage Details</h5>
+                    <span class="badge bg-danger fs-6">{{ details_needed_prescriptions.count }} prescription{{ details_needed_prescriptions.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if details_needed_prescriptions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Medication</th>
+                                        <th>Current Details</th>
+                                        <th>Prescribed By</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in details_needed_prescriptions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ prescription.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ prescription.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ prescription.get_drug_name }}</strong>
+                                            {% if prescription.indication %}
+                                                <br><small class="text-muted">For: {{ prescription.indication }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <strong>Dosage:</strong> {{ prescription.dosage|default:"<span class='text-danger'>Missing</span>" }}<br>
+                                                <strong>Frequency:</strong> {{ prescription.frequency|default:"<span class='text-danger'>Missing</span>" }}<br>
+                                                <strong>Duration:</strong> {{ prescription.duration|default:"<span class='text-danger'>Missing</span>" }}
+                                            </small>
+                                        </td>
+                                        <td>{{ prescription.consultation.doctor.get_full_name }}</td>
+                                        <td>{{ prescription.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm" onclick="completePrescription({{ prescription.id }})">
+                                                <i class="fas fa-edit"></i> Complete Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>All prescriptions have complete dosage details.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ready to Dispense -->
+    <div class="row mb-4" id="ready-to-dispense">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-pills text-success"></i> Ready to Dispense</h5>
+                    <span class="badge bg-success fs-6">{{ ready_prescriptions.count }} prescription{{ ready_prescriptions.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if ready_prescriptions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Medication</th>
+                                        <th>Dosage Instructions</th>
+                                        <th>Quantity</th>
+                                        <th>Prescribed By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in ready_prescriptions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ prescription.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ prescription.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ prescription.get_drug_name }}</strong>
+                                            {% if prescription.indication %}
+                                                <br><small class="text-muted">For: {{ prescription.indication }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <strong>{{ prescription.dosage }}</strong><br>
+                                                {{ prescription.frequency }}<br>
+                                                Duration: {{ prescription.duration }}
+                                            </small>
+                                        </td>
+                                        <td>{{ prescription.quantity|default:"-" }}</td>
+                                        <td>{{ prescription.consultation.doctor.get_full_name }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-success" onclick="dispenseMedication({{ prescription.id }})">
+                                                    <i class="fas fa-hand-holding-medical"></i> Dispense
+                                                </button>
+                                                <button class="btn btn-outline-secondary" onclick="viewPrescriptionDetails({{ prescription.id }})">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-pills fa-3x mb-3"></i>
+                            <p>No prescriptions ready for dispensing at this time.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Pharmacy Clerk Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Pharmacy Clerk</strong>, you are responsible for reviewing prescriptions, completing dosage details, and dispensing medications safely and accurately.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Prescription Review:</strong> Review all incoming prescriptions from doctors</li>
+                        <li><strong>Dosage Completion:</strong> Complete missing dosage, frequency, and duration details</li>
+                        <li><strong>Medication Dispensing:</strong> Safely dispense medications to patients</li>
+                        <li><strong>Patient Counseling:</strong> Provide medication instructions and safety information</li>
+                        <li><strong>Inventory Management:</strong> Track medication stock and usage</li>
+                        <li><strong>Documentation:</strong> Maintain accurate dispensing records</li>
+                    </ul>
+                    
+                    <h6>Workflow Process:</h6>
+                    <ol>
+                        <li><strong>Review:</strong> Check incoming prescriptions for completeness</li>
+                        <li><strong>Complete:</strong> Add missing dosage details if needed</li>
+                        <li><strong>Verify:</strong> Confirm medication availability and appropriateness</li>
+                        <li><strong>Dispense:</strong> Provide medication to patient with instructions</li>
+                        <li><strong>Document:</strong> Record dispensing details and update status</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="showPrescriptionSearch()">
+                            <i class="fas fa-search"></i> Search Prescriptions
+                        </button>
+                        <a href="#pending-prescriptions" class="btn btn-outline-warning">
+                            <i class="fas fa-clock"></i> Review Pending
+                        </a>
+                        <a href="#details-needed" class="btn btn-outline-danger">
+                            <i class="fas fa-edit"></i> Complete Details
+                        </a>
+                        <a href="#ready-to-dispense" class="btn btn-outline-success">
+                            <i class="fas fa-pills"></i> Dispense Medications
+                        </a>
+                        <button class="btn btn-outline-info" onclick="showDispensingHistory()">
+                            <i class="fas fa-history"></i> Dispensing History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription Details Modal -->
+<div class="modal fade" id="prescriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Prescription Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="prescriptionModalBody">
+                <!-- Content loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Prescription management functions
+function reviewPrescription(prescriptionId) {
+    // Load prescription details in modal
+    fetch(`/pharmacy/prescription/${prescriptionId}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('prescriptionModalBody').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('prescriptionModal')).show();
+        });
+}
+
+function completePrescription(prescriptionId) {
+    // Redirect to prescription completion form
+    window.location.href = `/pharmacy/prescription/${prescriptionId}/complete/`;
+}
+
+function dispenseMedication(prescriptionId) {
+    // Handle medication dispensing
+    if (confirm('Are you sure you want to dispense this medication?')) {
+        fetch(`/pharmacy/prescription/${prescriptionId}/dispense/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error dispensing medication: ' + data.error);
+            }
+        });
+    }
+}
+
+function viewPrescriptionDetails(prescriptionId) {
+    reviewPrescription(prescriptionId);
+}
+
+function showPrescriptionSearch() {
+    document.getElementById('patient-search').focus();
+}
+
+function showDispensingHistory() {
+    // Implement dispensing history view
+    window.location.href = '/pharmacy/dispensing-history/';
+}
+
+// Patient search functionality
+document.getElementById('patient-search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const query = document.getElementById('patient-search').value;
+    if (query.length >= 2) {
+        fetch(`/patients/search/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data.patients);
+            });
+    }
+});
+
+function displaySearchResults(patients) {
+    const resultsDiv = document.getElementById('search-results');
+    if (patients.length === 0) {
+        resultsDiv.innerHTML = '<div class="alert alert-info">No patients found.</div>';
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Patient ID</th><th>Name</th><th>Age/Gender</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>';
+    
+    patients.forEach(patient => {
+        html += `
+            <tr>
+                <td><span class="badge bg-primary">${patient.patient_id}</span></td>
+                <td>${patient.name}</td>
+                <td>${patient.age} years, ${patient.gender}</td>
+                <td>${patient.campaign}</td>
+                <td>
+                    <a href="/patients/${patient.id}/#prescriptions" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-pills"></i> View Prescriptions
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    resultsDiv.innerHTML = html;
+}
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

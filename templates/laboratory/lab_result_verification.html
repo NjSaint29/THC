@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Lab Result - {{ lab_result.lab_order.lab_test.name }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-check-circle"></i> Verify Result
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-check-circle"></i> Verify Laboratory Result</h1>
+                <div>
+                    <a href="{% url 'laboratory:result_detail' pk=lab_result.pk %}" class="btn btn-outline-info">
+                        <i class="fas fa-eye"></i> View Full Result
+                    </a>
+                    <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Alert -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle"></i> Supervisor Verification Required</h5>
+                <p class="mb-0">Please review the lab result below and verify its accuracy before releasing to the clinical team.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient & Test Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Patient ID:</strong> <span class="badge bg-primary fs-6">{{ lab_result.lab_order.consultation.patient.patient_id }}</span></p>
+                    <p><strong>Name:</strong> {{ lab_result.lab_order.consultation.patient.get_full_name }}</p>
+                    <p><strong>Age/Gender:</strong> {{ lab_result.lab_order.consultation.patient.age }} years, {{ lab_result.lab_order.consultation.patient.get_gender_display }}</p>
+                    <p><strong>Campaign:</strong> {{ lab_result.lab_order.consultation.patient.campaign.name }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-flask"></i> Test Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Test:</strong> {{ lab_result.lab_order.lab_test.name }}</p>
+                    <p><strong>Category:</strong> {{ lab_result.lab_order.lab_test.category }}</p>
+                    <p><strong>Ordered:</strong> {{ lab_result.lab_order.ordered_date|date:"M d, Y g:i A" }}</p>
+                    <p><strong>Doctor:</strong> {{ lab_result.lab_order.consultation.doctor.get_full_name }}</p>
+                    <p><strong>Urgency:</strong> 
+                        {% if lab_result.lab_order.urgency == 'stat' %}
+                            <span class="badge bg-danger">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% elif lab_result.lab_order.urgency == 'urgent' %}
+                            <span class="badge bg-warning">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Result Display -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Result to Verify</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-4 border rounded {% if lab_result.is_critical %}border-danger bg-danger bg-opacity-10{% elif lab_result.interpretation == 'abnormal' %}border-warning bg-warning bg-opacity-10{% else %}border-success bg-success bg-opacity-10{% endif %}">
+                                <h2 class="mb-2 {% if lab_result.is_critical %}text-danger{% elif lab_result.interpretation == 'abnormal' %}text-warning{% else %}text-success{% endif %}">
+                                    {{ lab_result.result_value }}
+                                </h2>
+                                <p class="mb-0 fs-5">{{ lab_result.result_unit|default:"" }}</p>
+                                {% if lab_result.is_critical %}
+                                    <div class="mt-2">
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="fas fa-exclamation-triangle"></i> CRITICAL VALUE
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Reference Range:</strong><br>{{ lab_result.reference_range|default:"Not specified" }}</p>
+                                    <p><strong>Interpretation:</strong><br>
+                                        {% if lab_result.interpretation == 'normal' %}
+                                            <span class="badge bg-success">{{ lab_result.get_interpretation_display }}</span>
+                                        {% elif lab_result.interpretation == 'abnormal' %}
+                                            <span class="badge bg-warning">{{ lab_result.get_interpretation_display }}</span>
+                                        {% elif lab_result.interpretation == 'critical' %}
+                                            <span class="badge bg-danger">{{ lab_result.get_interpretation_display }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ lab_result.get_interpretation_display|default:"Not specified" }}</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Sample Quality:</strong><br>{{ lab_result.get_sample_quality_display|default:"Not assessed" }}</p>
+                                    <p><strong>Test Method:</strong><br>{{ lab_result.test_method|default:"Standard method" }}</p>
+                                </div>
+                            </div>
+                            {% if lab_result.clinical_conclusion %}
+                                <p><strong>Clinical Conclusion:</strong><br>
+                                    <span class="text-muted">{{ lab_result.clinical_conclusion }}</span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if lab_result.technician_notes %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <p><strong>Technician Notes:</strong></p>
+                            <div class="border-start border-info ps-3">
+                                {{ lab_result.technician_notes|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Technician:</strong> {{ lab_result.technician.get_full_name }}</p>
+                            <p><strong>Result Date:</strong> {{ lab_result.result_date|date:"M d, Y g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Current Status:</strong> 
+                                <span class="badge bg-warning">{{ lab_result.get_status_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-check"></i> Verification Decision</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Status Selection -->
+                        <div class="mb-4">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                <strong>Verification Status</strong> <span class="text-danger">*</span>
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small">{{ form.status.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                <strong>Completed:</strong> Result is accurate and ready for clinical use<br>
+                                <strong>Verified:</strong> Result has been reviewed and approved by supervisor<br>
+                                <strong>Reported:</strong> Result has been communicated to clinical team
+                            </div>
+                        </div>
+
+                        <!-- Verification Notes -->
+                        <div class="mb-4">
+                            <label for="{{ form.verification_notes.id_for_label }}" class="form-label">
+                                <strong>Verification Notes</strong>
+                            </label>
+                            {{ form.verification_notes }}
+                            {% if form.verification_notes.errors %}
+                                <div class="text-danger small">{{ form.verification_notes.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Optional notes about the verification process, any concerns, or additional observations.
+                            </div>
+                        </div>
+
+                        <!-- Critical Value Handling -->
+                        {% if lab_result.is_critical %}
+                        <div class="mb-4">
+                            <div class="alert alert-danger">
+                                <h6><i class="fas fa-exclamation-triangle"></i> Critical Value Protocol</h6>
+                                <p class="mb-2">This result contains critical values. Please ensure:</p>
+                                <ul class="mb-2">
+                                    <li>The result has been double-checked for accuracy</li>
+                                    <li>Critical value notification has been completed</li>
+                                    <li>The ordering physician has been contacted</li>
+                                    <li>Patient safety measures are in place</li>
+                                </ul>
+                                {% if not lab_result.critical_notified_at %}
+                                    <div class="text-warning">
+                                        <strong>⚠️ Critical notification is still pending!</strong>
+                                    </div>
+                                {% else %}
+                                    <div class="text-success">
+                                        <strong>✅ Critical notification completed: {{ lab_result.critical_notified_at|date:"M d, Y g:i A" }}</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'laboratory:result_detail' pk=lab_result.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <div>
+                                {% if lab_result.is_critical and not lab_result.critical_notified_at %}
+                                    <a href="{% url 'laboratory:critical_notification' result_pk=lab_result.pk %}" class="btn btn-warning me-2">
+                                        <i class="fas fa-exclamation-triangle"></i> Handle Critical Value First
+                                    </a>
+                                {% endif %}
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check-circle"></i> Verify Result
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const status = document.getElementById('{{ form.status.id_for_label }}').value;
+    
+    if (!status) {
+        e.preventDefault();
+        alert('Please select a verification status.');
+        return;
+    }
+    
+    // Confirm verification action
+    const statusText = document.getElementById('{{ form.status.id_for_label }}').selectedOptions[0].text;
+    if (!confirm(`Are you sure you want to mark this result as "${statusText}"?`)) {
+        e.preventDefault();
+    }
+});
+
+// Highlight critical values
+{% if lab_result.is_critical %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Add pulsing animation to critical values
+    const criticalElements = document.querySelectorAll('.text-danger, .bg-danger');
+    criticalElements.forEach(element => {
+        element.style.animation = 'pulse 2s infinite';
+    });
+});
+{% endif %}
+</script>
+
+<style>
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+@media print {
+    .btn, .card-header, nav, .alert {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

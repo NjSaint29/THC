@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Vitals - {{ patient.patient_id }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-heartbeat"></i> Record Vitals
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-heartbeat"></i> Record Vitals</h1>
+                <a href="{% url 'patients:detail' patient.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Patient
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Information Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Patient ID:</strong><br>
+                            <span class="badge bg-primary fs-6">{{ patient.patient_id }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Name:</strong><br>
+                            {{ patient.get_full_name }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Age:</strong><br>
+                            {{ patient.age }} years
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Gender:</strong><br>
+                            {{ patient.get_gender_display }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Campaign:</strong><br>
+                            {{ patient.campaign.name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Vitals Entry Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-heartbeat"></i> 
+                        {% if clinical_parameters %}Update{% else %}Record{% endif %} Clinical Parameters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="vitalsForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Measurements -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-weight"></i> Basic Measurements</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.weight.id_for_label }}" class="form-label">
+                                    Weight (kg)
+                                </label>
+                                {{ form.weight }}
+                                {% if form.weight.errors %}
+                                    <div class="text-danger small">{{ form.weight.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.height.id_for_label }}" class="form-label">
+                                    Height (cm)
+                                </label>
+                                {{ form.height }}
+                                {% if form.height.errors %}
+                                    <div class="text-danger small">{{ form.height.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.temperature.id_for_label }}" class="form-label">
+                                    Temperature (°C)
+                                </label>
+                                {{ form.temperature }}
+                                {% if form.temperature.errors %}
+                                    <div class="text-danger small">{{ form.temperature.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Cardiovascular -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-heart"></i> Cardiovascular</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.systolic_bp.id_for_label }}" class="form-label">
+                                    Systolic BP (mmHg)
+                                </label>
+                                {{ form.systolic_bp }}
+                                {% if form.systolic_bp.errors %}
+                                    <div class="text-danger small">{{ form.systolic_bp.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.diastolic_bp.id_for_label }}" class="form-label">
+                                    Diastolic BP (mmHg)
+                                </label>
+                                {{ form.diastolic_bp }}
+                                {% if form.diastolic_bp.errors %}
+                                    <div class="text-danger small">{{ form.diastolic_bp.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.heart_rate.id_for_label }}" class="form-label">
+                                    Heart Rate (bpm)
+                                </label>
+                                {{ form.heart_rate }}
+                                {% if form.heart_rate.errors %}
+                                    <div class="text-danger small">{{ form.heart_rate.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Blood Glucose -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-tint"></i> Blood Glucose</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.glucose_type.id_for_label }}" class="form-label">
+                                    Glucose Type
+                                </label>
+                                {{ form.glucose_type }}
+                                {% if form.glucose_type.errors %}
+                                    <div class="text-danger small">{{ form.glucose_type.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.blood_glucose.id_for_label }}" class="form-label">
+                                    Blood Glucose (mg/dL)
+                                </label>
+                                {{ form.blood_glucose }}
+                                {% if form.blood_glucose.errors %}
+                                    <div class="text-danger small">{{ form.blood_glucose.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Women's Health (show only for female patients) -->
+                        {% if patient.gender == 'F' %}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-female"></i> Women's Health</h6>
+                                <hr>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.lmp.id_for_label }}" class="form-label">
+                                    Last Menstrual Period
+                                </label>
+                                {{ form.lmp }}
+                                {% if form.lmp.errors %}
+                                    <div class="text-danger small">{{ form.lmp.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check mt-4">
+                                    {{ form.is_pregnant }}
+                                    <label class="form-check-label" for="{{ form.is_pregnant.id_for_label }}">
+                                        Currently Pregnant
+                                    </label>
+                                    {% if form.is_pregnant.errors %}
+                                        <div class="text-danger small">{{ form.is_pregnant.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.gestational_age.id_for_label }}" class="form-label">
+                                    Gestational Age (weeks)
+                                </label>
+                                {{ form.gestational_age }}
+                                {% if form.gestational_age.errors %}
+                                    <div class="text-danger small">{{ form.gestational_age.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.age_at_first_pregnancy.id_for_label }}" class="form-label">
+                                    Age at First Pregnancy
+                                </label>
+                                {{ form.age_at_first_pregnancy }}
+                                {% if form.age_at_first_pregnancy.errors %}
+                                    <div class="text-danger small">{{ form.age_at_first_pregnancy.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Additional Notes -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary"><i class="fas fa-notes-medical"></i> Additional Notes</h6>
+                                <hr>
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                    Clinical Notes
+                                </label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger small">{{ form.notes.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="row">
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'patients:detail' patient.pk %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> 
+                                        {% if clinical_parameters %}Update{% else %}Record{% endif %} Vitals
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Current Vitals Display -->
+            {% if clinical_parameters %}
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Current Vitals</h5>
+                </div>
+                <div class="card-body">
+                    {% if clinical_parameters.weight and clinical_parameters.height %}
+                    <div class="mb-3">
+                        <strong>BMI:</strong> 
+                        <span class="badge bg-{% if clinical_parameters.bmi < 18.5 %}warning{% elif clinical_parameters.bmi < 25 %}success{% elif clinical_parameters.bmi < 30 %}warning{% else %}danger{% endif %}">
+                            {{ clinical_parameters.bmi }}
+                        </span>
+                        <br><small class="text-muted">{{ clinical_parameters.bmi_category }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if clinical_parameters.blood_pressure_display %}
+                    <div class="mb-3">
+                        <strong>Blood Pressure:</strong> 
+                        <span class="badge bg-{% if clinical_parameters.blood_pressure_category == 'Normal' %}success{% elif clinical_parameters.blood_pressure_category == 'Elevated' %}warning{% else %}danger{% endif %}">
+                            {{ clinical_parameters.blood_pressure_display }} mmHg
+                        </span>
+                        <br><small class="text-muted">{{ clinical_parameters.blood_pressure_category }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if clinical_parameters.heart_rate %}
+                    <div class="mb-3">
+                        <strong>Heart Rate:</strong> {{ clinical_parameters.heart_rate }} bpm
+                    </div>
+                    {% endif %}
+                    
+                    {% if clinical_parameters.temperature %}
+                    <div class="mb-3">
+                        <strong>Temperature:</strong> {{ clinical_parameters.temperature }}°C
+                    </div>
+                    {% endif %}
+                    
+                    {% if clinical_parameters.blood_glucose %}
+                    <div class="mb-3">
+                        <strong>Blood Glucose:</strong> {{ clinical_parameters.blood_glucose }} mg/dL
+                        {% if clinical_parameters.glucose_type %}
+                        <br><small class="text-muted">{{ clinical_parameters.get_glucose_type_display }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    <small class="text-muted">
+                        Last updated: {{ clinical_parameters.updated_at|date:"M d, Y H:i" }}<br>
+                        Recorded by: {{ clinical_parameters.recorded_by.get_full_name|default:clinical_parameters.recorded_by.username }}
+                    </small>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reference Ranges -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Reference Ranges</h5>
+                </div>
+                <div class="card-body">
+                    <small>
+                        <strong>Blood Pressure:</strong><br>
+                        • Normal: &lt;120/80 mmHg<br>
+                        • Elevated: 120-129/&lt;80 mmHg<br>
+                        • Stage 1: 130-139/80-89 mmHg<br>
+                        • Stage 2: ≥140/90 mmHg<br><br>
+                        
+                        <strong>Heart Rate:</strong><br>
+                        • Normal: 60-100 bpm<br><br>
+                        
+                        <strong>Temperature:</strong><br>
+                        • Normal: 36.1-37.2°C<br><br>
+                        
+                        <strong>BMI:</strong><br>
+                        • Underweight: &lt;18.5<br>
+                        • Normal: 18.5-24.9<br>
+                        • Overweight: 25-29.9<br>
+                        • Obese: ≥30<br><br>
+                        
+                        <strong>Blood Glucose:</strong><br>
+                        • Fasting: 70-100 mg/dL<br>
+                        • Random: &lt;140 mg/dL
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-calculate BMI
+function calculateBMI() {
+    const weight = parseFloat(document.getElementById('id_weight').value);
+    const height = parseFloat(document.getElementById('id_height').value);
+    
+    if (weight && height) {
+        const heightM = height / 100;
+        const bmi = (weight / (heightM * heightM)).toFixed(1);
+        
+        // You can display calculated BMI here if needed
+        console.log('Calculated BMI:', bmi);
+    }
+}
+
+// Add event listeners for BMI calculation
+document.getElementById('id_weight').addEventListener('input', calculateBMI);
+document.getElementById('id_height').addEventListener('input', calculateBMI);
+
+// Show/hide pregnancy fields based on checkbox
+document.getElementById('id_is_pregnant').addEventListener('change', function() {
+    const gestationalAgeField = document.getElementById('id_gestational_age').closest('.col-md-3');
+    if (this.checked) {
+        gestationalAgeField.style.display = 'block';
+    } else {
+        gestationalAgeField.style.display = 'block'; // Keep visible for data entry
+        document.getElementById('id_gestational_age').value = '';
+    }
+});
+</script>
+{% endblock %}

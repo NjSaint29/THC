@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Clerk Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:register' %}">
+        <i class="fas fa-user-plus"></i> Register Patient
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> All Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-tasks"></i> Campaigns
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-user-plus"></i> Registration Clerk Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-success ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus fa-3x mb-3"></i>
+                    <h5>Register Patient</h5>
+                    <p>Add new patient to system</p>
+                    <a href="{% url 'patients:register' %}" class="btn btn-light">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Search Patients</h5>
+                    <p>Find existing patients</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-search"></i> Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x mb-3"></i>
+                    <h5>Active Campaigns</h5>
+                    <p>View available campaigns</p>
+                    <a href="{% url 'campaigns:list' %}?status=active" class="btn btn-light">
+                        <i class="fas fa-tasks"></i> Campaigns
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-edit fa-3x mb-3"></i>
+                    <h5>Edit Patients</h5>
+                    <p>Update patient information</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Registration Clerk Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Registration Clerk</strong>, you are the first point of contact for patients and responsible for accurate patient registration and data entry.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Patient Registration:</strong> Register new patients in the system
+                            <ul>
+                                <li>Collect complete demographic information</li>
+                                <li>Verify patient identity and contact details</li>
+                                <li>Obtain informed consent for campaign participation</li>
+                                <li>Generate unique Patient IDs (TIKO-2025-XXXX format)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Data Management:</strong> Maintain accurate patient records
+                            <ul>
+                                <li>Update patient information as needed</li>
+                                <li>Verify and correct data entry errors</li>
+                                <li>Ensure data completeness and accuracy</li>
+                            </ul>
+                        </li>
+                        <li><strong>Campaign Support:</strong> Assist with campaign operations
+                            <ul>
+                                <li>Understand campaign requirements and procedures</li>
+                                <li>Guide patients through registration process</li>
+                                <li>Coordinate with other staff members</li>
+                            </ul>
+                        </li>
+                        <li><strong>Patient Communication:</strong> Provide excellent customer service
+                            <ul>
+                                <li>Explain campaign procedures to patients</li>
+                                <li>Answer basic questions about the process</li>
+                                <li>Ensure patient comfort and understanding</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h6>Registration Workflow:</h6>
+                    <ol>
+                        <li>Welcome patient and explain the campaign</li>
+                        <li>Collect demographic and contact information</li>
+                        <li>Verify patient identity and eligibility</li>
+                        <li>Obtain informed consent</li>
+                        <li>Complete registration and generate Patient ID</li>
+                        <li>Direct patient to next station (vitals)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-check"></i> Registration Checklist</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Required Information:</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Full name (first, middle, last)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Age and/or date of birth
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Gender and marital status
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Contact information (phone/email)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Address information
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Emergency contact details
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Campaign selection
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Informed consent obtained
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Patient Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'patients:list' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Patient ID or Name</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search_query" 
+                                   placeholder="Enter Patient ID or Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-play-circle"></i> Getting Started</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>First Time Using the System?</h6>
+                            <p>Follow these steps to register your first patient:</p>
+                            <ol>
+                                <li>Click on "Register Patient" to start</li>
+                                <li>Select the appropriate active campaign</li>
+                                <li>Fill in all required patient information</li>
+                                <li>Ensure consent checkbox is checked</li>
+                                <li>Save the registration to generate Patient ID</li>
+                                <li>Write down or print the Patient ID for the patient</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tips for Efficient Registration:</h6>
+                            <ul>
+                                <li>Have patients prepare their information in advance</li>
+                                <li>Double-check spelling of names and contact details</li>
+                                <li>Verify age matches date of birth if both provided</li>
+                                <li>Ensure emergency contact information is complete</li>
+                                <li>Explain the consent process clearly to patients</li>
+                                <li>Keep Patient ID cards or slips ready for patients</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6><i class="fas fa-info-circle"></i> Important Notes:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Patient IDs are automatically generated</strong> in the format TIKO-2025-XXXX</li>
+                            <li><strong>Consent is required</strong> - patients cannot be registered without consent</li>
+                            <li><strong>All registrations are logged</strong> for audit purposes</li>
+                            <li><strong>Patient information can be updated</strong> after registration if needed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'patients:register' %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-user-plus"></i> Start Registering Patients
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus quick search
+document.getElementById('quickSearch').focus();
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

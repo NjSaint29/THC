@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-clipboard-list"></i> Create Worksheet
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-clipboard-list"></i> {{ title }}</h1>
+                <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> About Lab Worksheets</h5>
+                <p class="mb-2">Lab worksheets help organize and batch process laboratory tests of the same type. This ensures:</p>
+                <ul class="mb-0">
+                    <li><strong>Quality Control:</strong> Run controls and calibrations for each batch</li>
+                    <li><strong>Efficiency:</strong> Process multiple samples together</li>
+                    <li><strong>Traceability:</strong> Track which samples were processed together</li>
+                    <li><strong>Documentation:</strong> Maintain proper laboratory records</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-edit"></i> Worksheet Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="worksheetForm">
+                        {% csrf_token %}
+                        
+                        <!-- Test Type Selection -->
+                        <div class="mb-4">
+                            <label for="{{ form.test_type.id_for_label }}" class="form-label">
+                                <strong>Test Type</strong> <span class="text-danger">*</span>
+                            </label>
+                            {{ form.test_type }}
+                            {% if form.test_type.errors %}
+                                <div class="text-danger small">{{ form.test_type.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Select the type of laboratory test this worksheet will be used for. All samples on this worksheet should be for the same test type.
+                            </div>
+                        </div>
+
+                        <!-- Run Date -->
+                        <div class="mb-4">
+                            <label for="{{ form.run_date.id_for_label }}" class="form-label">
+                                <strong>Scheduled Run Date & Time</strong>
+                            </label>
+                            {{ form.run_date }}
+                            {% if form.run_date.errors %}
+                                <div class="text-danger small">{{ form.run_date.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                When do you plan to run this batch of tests? Leave blank to run immediately.
+                            </div>
+                        </div>
+
+                        <!-- Quality Control Results -->
+                        <div class="mb-4">
+                            <label for="{{ form.control_results.id_for_label }}" class="form-label">
+                                <strong>Quality Control Results</strong>
+                            </label>
+                            {{ form.control_results }}
+                            {% if form.control_results.errors %}
+                                <div class="text-danger small">{{ form.control_results.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Record quality control results for this batch. Include control values, calibration results, and any QC observations.
+                            </div>
+                        </div>
+
+                        <!-- Worksheet Notes -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <strong>Worksheet Notes</strong>
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small">{{ form.notes.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Any additional notes about this worksheet, special procedures, or observations.
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Worksheet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Benefits -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-lightbulb"></i> Worksheet Benefits</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Quality Assurance</h6>
+                            <ul>
+                                <li>Consistent quality control procedures</li>
+                                <li>Batch-specific calibration tracking</li>
+                                <li>Standardized processing protocols</li>
+                                <li>Error detection and prevention</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-clock text-info"></i> Efficiency & Organization</h6>
+                            <ul>
+                                <li>Batch processing saves time</li>
+                                <li>Organized sample management</li>
+                                <li>Reduced setup and cleanup time</li>
+                                <li>Better resource utilization</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-file-alt text-warning"></i> Documentation</h6>
+                            <ul>
+                                <li>Complete audit trail</li>
+                                <li>Regulatory compliance</li>
+                                <li>Troubleshooting support</li>
+                                <li>Performance monitoring</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-shield-alt text-primary"></i> Patient Safety</h6>
+                            <ul>
+                                <li>Reduced risk of sample mix-ups</li>
+                                <li>Consistent result quality</li>
+                                <li>Proper chain of custody</li>
+                                <li>Timely result delivery</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="fas fa-arrow-right"></i> After Creating Your Worksheet</h6>
+                    <ol>
+                        <li><strong>Add Lab Orders:</strong> Select which lab orders to include in this worksheet</li>
+                        <li><strong>Run Quality Controls:</strong> Perform and document QC procedures</li>
+                        <li><strong>Process Samples:</strong> Run the tests according to standard procedures</li>
+                        <li><strong>Enter Results:</strong> Record results for each sample in the worksheet</li>
+                        <li><strong>Review & Verify:</strong> Have results reviewed by a supervisor</li>
+                        <li><strong>Release Results:</strong> Make results available to clinical staff</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set default run date to current time
+document.addEventListener('DOMContentLoaded', function() {
+    const runDateField = document.getElementById('{{ form.run_date.id_for_label }}');
+    if (!runDateField.value) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        runDateField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+});
+
+// Form validation
+document.getElementById('worksheetForm').addEventListener('submit', function(e) {
+    const testType = document.getElementById('{{ form.test_type.id_for_label }}').value;
+    
+    if (!testType) {
+        e.preventDefault();
+        alert('Please select a test type for this worksheet.');
+        document.getElementById('{{ form.test_type.id_for_label }}').focus();
+        return;
+    }
+    
+    // Confirm worksheet creation
+    const testTypeName = document.getElementById('{{ form.test_type.id_for_label }}').selectedOptions[0].text;
+    if (!confirm(`Create a new worksheet for "${testTypeName}"?`)) {
+        e.preventDefault();
+    }
+});
+
+// Auto-expand textarea based on content
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+});
+
+// Test type change handler
+document.getElementById('{{ form.test_type.id_for_label }}').addEventListener('change', function() {
+    const selectedOption = this.selectedOptions[0];
+    if (selectedOption) {
+        // You could add logic here to show test-specific information
+        console.log('Selected test type:', selectedOption.text);
+    }
+});
+</script>
+{% endblock %}

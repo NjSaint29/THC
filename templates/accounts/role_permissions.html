@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}Role Permissions - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:staff_list' %}">
+        <i class="fas fa-users"></i> Staff List
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:staff_register' %}">
+        <i class="fas fa-user-plus"></i> Register Staff
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'accounts:role_permissions' %}">
+        <i class="fas fa-shield-alt"></i> Role Permissions
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-shield-alt"></i> Role Permissions & Responsibilities</h1>
+                <a href="{% url 'accounts:staff_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-users"></i> Back to Staff List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Permission System Overview</h5>
+                <p>The Tiko Health Campaign system uses role-based access control to ensure that staff members can only access and modify the sections of patient data relevant to their responsibilities. Each role corresponds to specific sections of the patient form:</p>
+                <ul class="mb-0">
+                    <li><strong>Section A:</strong> Demographic and Biographic Data</li>
+                    <li><strong>Section B:</strong> Clinical Parameters</li>
+                    <li><strong>Section C:</strong> Medical Consultation</li>
+                    <li><strong>Section D:</strong> Laboratory Test Results</li>
+                    <li><strong>Section E:</strong> Prescriptions (Ordonnance)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Cards -->
+    <div class="row">
+        <!-- Registration Clerk -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-user-plus"></i> 1️⃣ Registration Clerk</h5>
+                    <small>Handles Section A: DEMOGRAPHIC AND BIOGRAPHIC DATA</small>
+                </div>
+                <div class="card-body">
+                    <h6>Form Fields They Complete:</h6>
+                    <ul>
+                        <li>Name (first, middle, last)</li>
+                        <li>Age</li>
+                        <li>Sex</li>
+                        <li>Marital status</li>
+                        <li>Phone/contact information</li>
+                        <li><span class="badge bg-info">Health Area</span> - Fixed from campaign config</li>
+                    </ul>
+                    
+                    <h6 class="text-success">✅ Permissions:</h6>
+                    <ul class="text-success">
+                        <li>View list of active campaigns</li>
+                        <li>Register new patients</li>
+                        <li>Auto-generate Patient ID (TIKO-2025-XXXX)</li>
+                        <li>View patient demographics</li>
+                        <li>Edit patient demographics</li>
+                    </ul>
+                    
+                    <h6 class="text-danger">❌ Cannot View or Edit:</h6>
+                    <ul class="text-danger">
+                        <li>Clinical parameters</li>
+                        <li>Consultation/diagnosis</li>
+                        <li>Lab results</li>
+                        <li>Prescriptions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vitals Clerk -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-heartbeat"></i> 2️⃣ Vitals Clerk</h5>
+                    <small>Handles Section B: CLINICAL PARAMETERS</small>
+                </div>
+                <div class="card-body">
+                    <h6>Form Fields They Complete:</h6>
+                    <ul>
+                        <li>Weight</li>
+                        <li>Temperature</li>
+                        <li>Blood pressure</li>
+                        <li>Heart rate</li>
+                        <li>Blood glucose (FBS/RBS)</li>
+                        <li>Height</li>
+                        <li>LMP (Last Menstrual Period)</li>
+                        <li>Teenage pregnancy details (GA, age of first pregnancy)</li>
+                    </ul>
+                    
+                    <h6 class="text-success">✅ Permissions:</h6>
+                    <ul class="text-success">
+                        <li>Search by Patient ID or name</li>
+                        <li>View demographics (read-only)</li>
+                        <li>Enter/update clinical parameters</li>
+                    </ul>
+                    
+                    <h6 class="text-danger">❌ Cannot Edit:</h6>
+                    <ul class="text-danger">
+                        <li>Demographics</li>
+                        <li>Consultation/diagnosis</li>
+                        <li>Lab results</li>
+                        <li>Prescriptions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user-md"></i> 3️⃣ Doctor</h5>
+                    <small>Handles Sections C and E: MEDICAL CONSULTATION and PRESCRIPTIONS</small>
+                </div>
+                <div class="card-body">
+                    <h6>Form Fields They Complete:</h6>
+                    <ul>
+                        <li>Presenting complaint and history</li>
+                        <li>Past history</li>
+                        <li>Physical examination</li>
+                        <li>Working diagnosis</li>
+                        <li>Tests to be ordered (if not predefined by campaign)</li>
+                        <li>Prescriptions (Ordonnance)</li>
+                        <li>Referral/outcome</li>
+                    </ul>
+                    
+                    <h6 class="text-success">✅ Permissions:</h6>
+                    <ul class="text-success">
+                        <li>Search by Patient ID or name</li>
+                        <li>View full patient record: demographics + vitals + lab results</li>
+                        <li>Enter/update consultation details</li>
+                        <li>Enter/update diagnosis</li>
+                        <li>Order lab tests</li>
+                        <li>Write prescriptions</li>
+                        <li>Make referrals</li>
+                    </ul>
+                    
+                    <h6 class="text-danger">❌ Cannot Edit:</h6>
+                    <ul class="text-danger">
+                        <li>Demographics</li>
+                        <li>Vitals</li>
+                        <li>Lab results</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab Technician -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-white">
+                    <h5><i class="fas fa-flask"></i> 4️⃣ Lab Technician</h5>
+                    <small>Handles Section D: LABORATORY TEST RESULTS</small>
+                </div>
+                <div class="card-body">
+                    <h6>Form Fields They Complete:</h6>
+                    <ul>
+                        <li>Test result values</li>
+                        <li>Test conclusions</li>
+                        <li>Reference ranges</li>
+                        <li>Clinical interpretation</li>
+                        <li>Sample quality assessment</li>
+                        <li>Critical value notifications</li>
+                    </ul>
+                    
+                    <h6 class="text-success">✅ Permissions:</h6>
+                    <ul class="text-success">
+                        <li>Search by Patient ID or name</li>
+                        <li>View demographics, vitals, and requested tests</li>
+                        <li>Enter/update lab test results</li>
+                        <li>Add test conclusions</li>
+                        <li>Mark critical values</li>
+                    </ul>
+                    
+                    <h6 class="text-danger">❌ Cannot Edit:</h6>
+                    <ul class="text-danger">
+                        <li>Demographics</li>
+                        <li>Vitals</li>
+                        <li>Consultation/diagnosis</li>
+                        <li>Prescriptions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Diagram -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-sitemap"></i> Patient Workflow & Role Interaction</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-user-plus fa-2x mb-2"></i>
+                                    <h6>Step 1</h6>
+                                    <p class="small mb-0">Registration Clerk<br>Registers Patient</p>
+                                </div>
+                            </div>
+                            <small>Section A: Demographics</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-heartbeat fa-2x mb-2"></i>
+                                    <h6>Step 2</h6>
+                                    <p class="small mb-0">Vitals Clerk<br>Records Vitals</p>
+                                </div>
+                            </div>
+                            <small>Section B: Clinical Parameters</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-user-md fa-2x mb-2"></i>
+                                    <h6>Step 3</h6>
+                                    <p class="small mb-0">Doctor<br>Consultation & Orders</p>
+                                </div>
+                            </div>
+                            <small>Section C: Consultation<br>Section E: Prescriptions</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white mb-3">
+                                <div class="card-body">
+                                    <i class="fas fa-flask fa-2x mb-2"></i>
+                                    <h6>Step 4</h6>
+                                    <p class="small mb-0">Lab Technician<br>Processes Tests</p>
+                                </div>
+                            </div>
+                            <small>Section D: Lab Results</small>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            <i class="fas fa-arrow-right"></i> 
+                            Each role can only access their designated section(s) while having read-only access to relevant previous sections
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Implementation -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Technical Implementation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Django Groups Created:</h6>
+                            <ul>
+                                <li><code>Registration Clerks</code></li>
+                                <li><code>Vitals Clerks</code></li>
+                                <li><code>Doctors</code></li>
+                                <li><code>Lab Technicians</code></li>
+                            </ul>
+                            
+                            <h6>Permission Enforcement:</h6>
+                            <ul>
+                                <li>View-level decorators</li>
+                                <li>Template-level permission checks</li>
+                                <li>Model-level access control</li>
+                                <li>Section-based restrictions</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Security Features:</h6>
+                            <ul>
+                                <li>Role-based access control (RBAC)</li>
+                                <li>Section-specific permissions</li>
+                                <li>Automatic group assignment</li>
+                                <li>Permission inheritance</li>
+                            </ul>
+                            
+                            <h6>Audit & Compliance:</h6>
+                            <ul>
+                                <li>All actions are logged</li>
+                                <li>User activity tracking</li>
+                                <li>Permission change history</li>
+                                <li>Data access monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any role-specific JavaScript here
+console.log('Role Permissions page loaded');
+</script>
+{% endblock %}

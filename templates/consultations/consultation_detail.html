@@ -1,0 +1,447 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation Details - {{ consultation.patient.patient_id }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:patient_search' %}">
+        <i class="fas fa-search"></i> Find Patient
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-file-medical"></i> Consultation Details
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-medical"></i> Consultation Details</h1>
+                <div>
+                    <a href="{% url 'consultations:edit' pk=consultation.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit Consultation
+                    </a>
+                    <a href="{% url 'patients:detail' pk=consultation.patient.pk %}" class="btn btn-outline-info">
+                        <i class="fas fa-user"></i> Patient Details
+                    </a>
+                    <a href="{% url 'consultations:patient_search' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient & Consultation Info -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Patient ID:</strong> {{ consultation.patient.patient_id }}</p>
+                            <p><strong>Name:</strong> {{ consultation.patient.get_full_name }}</p>
+                            <p><strong>Age:</strong> {{ consultation.patient.age }} years</p>
+                            <p><strong>Gender:</strong> {{ consultation.patient.get_gender_display }}</p>
+                            <p><strong>Phone:</strong> {{ consultation.patient.phone_number|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Campaign:</strong> {{ consultation.patient.campaign.name }}</p>
+                            <p><strong>Location:</strong> {{ consultation.patient.campaign.location }}</p>
+                            <p><strong>Registration Date:</strong> {{ consultation.patient.registration_date|date:"M d, Y g:i A" }}</p>
+                            <p><strong>Current Status:</strong> 
+                                <span class="badge bg-info">{{ consultation.patient.get_status_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-stethoscope"></i> Consultation Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Doctor:</strong> {{ consultation.doctor.get_full_name }}</p>
+                    <p><strong>Date:</strong> {{ consultation.consultation_date|date:"M d, Y g:i A" }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if consultation.status == 'completed' %}
+                            <span class="badge bg-success">{{ consultation.get_status_display }}</span>
+                        {% elif consultation.status == 'in_progress' %}
+                            <span class="badge bg-warning">{{ consultation.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ consultation.get_status_display }}</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Created:</strong> {{ consultation.created_at|date:"M d, Y g:i A" }}</p>
+                    {% if consultation.updated_at != consultation.created_at %}
+                        <p><strong>Last Updated:</strong> {{ consultation.updated_at|date:"M d, Y g:i A" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Vitals -->
+    {% if consultation.patient.clinical_parameters %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-heartbeat"></i> Latest Vital Signs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <strong>Blood Pressure:</strong><br>
+                            {{ consultation.patient.clinical_parameters.blood_pressure_systolic }}/{{ consultation.patient.clinical_parameters.blood_pressure_diastolic }} mmHg
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Pulse Rate:</strong><br>
+                            {{ consultation.patient.clinical_parameters.pulse_rate }} bpm
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Temperature:</strong><br>
+                            {{ consultation.patient.clinical_parameters.temperature }}°C
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Weight:</strong><br>
+                            {{ consultation.patient.clinical_parameters.weight }} kg
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Height:</strong><br>
+                            {{ consultation.patient.clinical_parameters.height }} cm
+                        </div>
+                        <div class="col-md-2">
+                            <strong>BMI:</strong><br>
+                            {{ consultation.patient.clinical_parameters.bmi|floatformat:1 }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Consultation Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Medical Consultation</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Chief Complaint & History -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-comment-medical"></i> Chief Complaint</h6>
+                        <p class="border-start border-primary ps-3">{{ consultation.chief_complaint|default:"Not recorded" }}</p>
+                    </div>
+
+                    {% if consultation.history_of_present_illness %}
+                    <div class="mb-4">
+                        <h6><i class="fas fa-history"></i> History of Present Illness</h6>
+                        <p class="border-start border-info ps-3">{{ consultation.history_of_present_illness|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-4">
+                        {% if consultation.past_medical_history %}
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-file-medical-alt"></i> Past Medical History</h6>
+                            <p class="small">{{ consultation.past_medical_history|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                        {% if consultation.family_history %}
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-users"></i> Family History</h6>
+                            <p class="small">{{ consultation.family_history|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if consultation.social_history %}
+                    <div class="mb-4">
+                        <h6><i class="fas fa-home"></i> Social History</h6>
+                        <p class="small">{{ consultation.social_history|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Physical Examination -->
+                    <hr>
+                    <h6><i class="fas fa-search"></i> Physical Examination</h6>
+                    
+                    {% if consultation.general_appearance %}
+                    <div class="mb-3">
+                        <strong>General Appearance:</strong>
+                        <p class="ms-3">{{ consultation.general_appearance|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if consultation.physical_examination %}
+                    <div class="mb-4">
+                        <strong>Physical Examination Findings:</strong>
+                        <p class="ms-3">{{ consultation.physical_examination|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Assessment & Diagnosis -->
+                    <hr>
+                    <h6><i class="fas fa-diagnoses"></i> Assessment & Diagnosis</h6>
+                    
+                    {% if consultation.clinical_assessment %}
+                    <div class="mb-3">
+                        <strong>Clinical Assessment:</strong>
+                        <p class="ms-3">{{ consultation.clinical_assessment|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <strong>Working Diagnosis:</strong>
+                        <p class="ms-3 border-start border-success ps-3">{{ consultation.working_diagnosis|linebreaks }}</p>
+                    </div>
+
+                    {% if consultation.treatment_plan %}
+                    <div class="mb-4">
+                        <strong>Treatment Plan:</strong>
+                        <p class="ms-3">{{ consultation.treatment_plan|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Follow-up & Referrals -->
+                    <hr>
+                    <h6><i class="fas fa-calendar-check"></i> Follow-up & Referrals</h6>
+                    
+                    {% if consultation.follow_up_instructions %}
+                    <div class="mb-3">
+                        <strong>Follow-up Instructions:</strong>
+                        <p class="ms-3">{{ consultation.follow_up_instructions|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if consultation.referral_needed %}
+                    <div class="mb-3">
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-share"></i> Referral Required</h6>
+                            <p><strong>Referral To:</strong> {{ consultation.referral_to }}</p>
+                            {% if consultation.referral_reason %}
+                                <p><strong>Reason:</strong> {{ consultation.referral_reason|linebreaks }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if consultation.additional_notes %}
+                    <div class="mb-3">
+                        <strong>Additional Notes:</strong>
+                        <p class="ms-3 text-muted">{{ consultation.additional_notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab Orders & Prescriptions -->
+        <div class="col-lg-4">
+            <!-- Lab Orders -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-flask"></i> Laboratory Orders</h6>
+                </div>
+                <div class="card-body">
+                    {% if lab_orders %}
+                        {% for lab_order in lab_orders %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ lab_order.get_test_name }}</h6>
+                                    {% if lab_order.get_test_category != "Custom Test" %}
+                                        <small class="text-muted">{{ lab_order.get_test_category|title }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    {% if lab_order.urgency == 'stat' %}
+                                        <span class="badge bg-danger">STAT</span>
+                                    {% elif lab_order.urgency == 'urgent' %}
+                                        <span class="badge bg-warning">Urgent</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Routine</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if lab_order.clinical_indication %}
+                                <p class="small mt-2 mb-1"><strong>Indication:</strong> {{ lab_order.clinical_indication }}</p>
+                            {% endif %}
+                            {% if lab_order.notes %}
+                                <p class="small mb-1"><strong>Notes:</strong> {{ lab_order.notes }}</p>
+                            {% endif %}
+
+                            <small class="text-muted">
+                                Ordered: {{ lab_order.ordered_date|date:"M d, Y g:i A" }}
+                            </small>
+
+                            <!-- Lab Order Status -->
+                            <div class="mt-2">
+                                {% if lab_order.lab_status == 'ordered' %}
+                                    <span class="badge bg-warning">Awaiting Results</span>
+                                {% elif lab_order.lab_status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ lab_order.get_lab_status_display }}</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Lab Results Display -->
+                            {% if lab_order.result %}
+                                <div class="mt-3 p-2 bg-light rounded">
+                                    <h6 class="text-success mb-2">
+                                        <i class="fas fa-check-circle"></i> Result Available
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Result:</strong><br>
+                                            <span class="text-primary">{{ lab_order.result.result_value }}</span>
+                                            {% if lab_order.result.result_unit %}
+                                                {{ lab_order.result.result_unit }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Reference:</strong><br>
+                                            <small>{{ lab_order.result.reference_range|default:"Not specified" }}</small>
+                                        </div>
+                                    </div>
+
+                                    {% if lab_order.result.interpretation %}
+                                    <div class="mt-2">
+                                        <strong>Interpretation:</strong>
+                                        {% if lab_order.result.interpretation == 'normal' %}
+                                            <span class="badge bg-success">Normal</span>
+                                        {% elif lab_order.result.interpretation == 'abnormal_low' %}
+                                            <span class="badge bg-warning">Low</span>
+                                        {% elif lab_order.result.interpretation == 'abnormal_high' %}
+                                            <span class="badge bg-warning">High</span>
+                                        {% elif lab_order.result.interpretation == 'critical_low' %}
+                                            <span class="badge bg-danger">Critical Low</span>
+                                        {% elif lab_order.result.interpretation == 'critical_high' %}
+                                            <span class="badge bg-danger">Critical High</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ lab_order.result.get_interpretation_display }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if lab_order.result.is_critical %}
+                                    <div class="mt-2">
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> CRITICAL VALUE
+                                        </span>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if lab_order.result.clinical_conclusion %}
+                                    <div class="mt-2">
+                                        <strong>Conclusion:</strong><br>
+                                        <small>{{ lab_order.result.clinical_conclusion }}</small>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            Result by: {{ lab_order.result.technician.get_full_name }}<br>
+                                            Date: {{ lab_order.result.result_date|date:"M d, Y g:i A" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% elif lab_order.lab_status == 'completed' %}
+                                <div class="mt-2 p-2 bg-warning bg-opacity-10 rounded">
+                                    <small class="text-warning">
+                                        <i class="fas fa-clock"></i> Result pending entry
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No laboratory tests ordered</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Prescriptions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-pills"></i> Prescriptions</h6>
+                </div>
+                <div class="card-body">
+                    {% if prescriptions %}
+                        {% for prescription in prescriptions %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="mb-1">
+                                {{ prescription.get_drug_name }}
+                                {% if prescription.custom_drug_name %}
+                                    <span class="badge bg-info ms-2">Custom Medication</span>
+                                {% endif %}
+                            </h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small><strong>Dosage:</strong> {{ prescription.dosage }}</small>
+                                </div>
+                                <div class="col-6">
+                                    <small><strong>Frequency:</strong> {{ prescription.frequency }}</small>
+                                </div>
+                                <div class="col-6">
+                                    <small><strong>Duration:</strong> {{ prescription.duration }}</small>
+                                </div>
+                                <div class="col-6">
+                                    <small><strong>Route:</strong> {{ prescription.get_route_display }}</small>
+                                </div>
+                            </div>
+                            {% if prescription.instructions %}
+                                <p class="small mt-2 mb-1"><strong>Instructions:</strong> {{ prescription.instructions }}</p>
+                            {% endif %}
+                            {% if prescription.indication %}
+                                <p class="small mb-1"><strong>Indication:</strong> {{ prescription.indication }}</p>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">Qty: {{ prescription.quantity|default:"Not specified" }}</small>
+                                <span class="badge bg-success">{{ prescription.get_status_display }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No prescriptions written</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Print consultation
+function printConsultation() {
+    window.print();
+}
+
+// Add print button functionality if needed
+document.addEventListener('DOMContentLoaded', function() {
+    // You can add print functionality here if needed
+});
+</script>
+{% endblock %}

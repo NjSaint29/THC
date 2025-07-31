@@ -1,0 +1,782 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:patient_search' %}">
+        <i class="fas fa-search"></i> Find Patient
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-plus"></i> New Consultation
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-stethoscope"></i> {{ title }}</h1>
+                <div>
+                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                        <i class="fas fa-user"></i> Patient Details
+                    </a>
+                    <a href="{% url 'consultations:patient_search' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Information Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Patient ID:</strong> {{ patient.patient_id }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Name:</strong> {{ patient.get_full_name }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Age:</strong> {{ patient.age }} years
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Gender:</strong> {{ patient.get_gender_display }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-info">{{ patient.get_status_display }}</span>
+                        </div>
+                    </div>
+                    {% if patient.clinical_parameters %}
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <small class="text-muted">
+                                <strong>Latest Vitals:</strong>
+                                BP: {{ patient.clinical_parameters.blood_pressure_systolic }}/{{ patient.clinical_parameters.blood_pressure_diastolic }} mmHg,
+                                Pulse: {{ patient.clinical_parameters.pulse_rate }} bpm,
+                                Temp: {{ patient.clinical_parameters.temperature }}°C,
+                                Weight: {{ patient.clinical_parameters.weight }} kg
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="consultationForm">
+        {% csrf_token %}
+        
+        <!-- Main Consultation Form -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clipboard-list"></i> Medical Consultation</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Chief Complaint & History -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.chief_complaint.id_for_label }}" class="form-label">
+                                    <strong>Chief Complaint</strong> <span class="text-danger">*</span>
+                                </label>
+                                {{ form.chief_complaint }}
+                                {% if form.chief_complaint.errors %}
+                                    <div class="text-danger small">{{ form.chief_complaint.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.history_of_present_illness.id_for_label }}" class="form-label">
+                                    <strong>History of Present Illness</strong>
+                                </label>
+                                {{ form.history_of_present_illness }}
+                                {% if form.history_of_present_illness.errors %}
+                                    <div class="text-danger small">{{ form.history_of_present_illness.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.past_medical_history.id_for_label }}" class="form-label">
+                                    <strong>Past Medical History</strong>
+                                </label>
+                                {{ form.past_medical_history }}
+                                {% if form.past_medical_history.errors %}
+                                    <div class="text-danger small">{{ form.past_medical_history.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.family_history.id_for_label }}" class="form-label">
+                                    <strong>Family History</strong>
+                                </label>
+                                {{ form.family_history }}
+                                {% if form.family_history.errors %}
+                                    <div class="text-danger small">{{ form.family_history.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.social_history.id_for_label }}" class="form-label">
+                                    <strong>Social History</strong>
+                                </label>
+                                {{ form.social_history }}
+                                {% if form.social_history.errors %}
+                                    <div class="text-danger small">{{ form.social_history.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Physical Examination -->
+                        <hr>
+                        <h6><i class="fas fa-search"></i> Physical Examination</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.general_appearance.id_for_label }}" class="form-label">
+                                    <strong>General Appearance</strong>
+                                </label>
+                                {{ form.general_appearance }}
+                                {% if form.general_appearance.errors %}
+                                    <div class="text-danger small">{{ form.general_appearance.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.physical_examination.id_for_label }}" class="form-label">
+                                    <strong>Physical Examination Findings</strong>
+                                </label>
+                                {{ form.physical_examination }}
+                                {% if form.physical_examination.errors %}
+                                    <div class="text-danger small">{{ form.physical_examination.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Assessment & Diagnosis -->
+                        <hr>
+                        <h6><i class="fas fa-diagnoses"></i> Assessment & Diagnosis</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.clinical_assessment.id_for_label }}" class="form-label">
+                                    <strong>Clinical Assessment</strong>
+                                </label>
+                                {{ form.clinical_assessment }}
+                                {% if form.clinical_assessment.errors %}
+                                    <div class="text-danger small">{{ form.clinical_assessment.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.working_diagnosis.id_for_label }}" class="form-label">
+                                    <strong>Working Diagnosis</strong> <span class="text-danger">*</span>
+                                </label>
+                                {{ form.working_diagnosis }}
+                                {% if form.working_diagnosis.errors %}
+                                    <div class="text-danger small">{{ form.working_diagnosis.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.treatment_plan.id_for_label }}" class="form-label">
+                                    <strong>Treatment Plan</strong>
+                                </label>
+                                {{ form.treatment_plan }}
+                                {% if form.treatment_plan.errors %}
+                                    <div class="text-danger small">{{ form.treatment_plan.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Follow-up & Referrals -->
+                        <hr>
+                        <h6><i class="fas fa-calendar-check"></i> Follow-up & Referrals</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="{{ form.follow_up_instructions.id_for_label }}" class="form-label">
+                                    <strong>Follow-up Instructions</strong>
+                                </label>
+                                {{ form.follow_up_instructions }}
+                                {% if form.follow_up_instructions.errors %}
+                                    <div class="text-danger small">{{ form.follow_up_instructions.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    {{ form.referral_needed }}
+                                    <label class="form-check-label" for="{{ form.referral_needed.id_for_label }}">
+                                        <strong>Referral Needed</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.referral_to.id_for_label }}" class="form-label">
+                                    <strong>Referral To</strong>
+                                </label>
+                                {{ form.referral_to }}
+                                {% if form.referral_to.errors %}
+                                    <div class="text-danger small">{{ form.referral_to.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <label for="{{ form.referral_reason.id_for_label }}" class="form-label">
+                                    <strong>Referral Reason</strong>
+                                </label>
+                                {{ form.referral_reason }}
+                                {% if form.referral_reason.errors %}
+                                    <div class="text-danger small">{{ form.referral_reason.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Status & Notes -->
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    <strong>Consultation Status</strong>
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger small">{{ form.status.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.additional_notes.id_for_label }}" class="form-label">
+                                    <strong>Additional Notes</strong>
+                                </label>
+                                {{ form.additional_notes }}
+                                {% if form.additional_notes.errors %}
+                                    <div class="text-danger small">{{ form.additional_notes.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab Orders & Prescriptions Sidebar -->
+            <div class="col-lg-4">
+                <!-- Lab Orders -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6><i class="fas fa-flask"></i> Laboratory Orders</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ lab_order_formset.management_form }}
+                        <div id="lab-order-forms">
+                            {% for form in lab_order_formset %}
+                                <div class="lab-order-form border-bottom pb-3 mb-3">
+                                    {% if form.non_field_errors %}
+                                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                                    {% endif %}
+                                    
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.test_name.id_for_label }}" class="form-label">
+                                                <strong>Laboratory Test Name</strong> <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.test_name }}
+                                            {% if form.test_name.errors %}
+                                                <div class="text-danger small">{{ form.test_name.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{{ form.test_name.help_text }}</div>
+                                        </div>
+
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.common_test.id_for_label }}" class="form-label">
+                                                <strong>Common Tests</strong> <small class="text-muted">(Optional)</small>
+                                            </label>
+                                            {{ form.common_test }}
+                                            {% if form.common_test.errors %}
+                                                <div class="text-danger small">{{ form.common_test.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{{ form.common_test.help_text }}</div>
+                                        </div>
+
+                                        <div class="col-6 mb-2">
+                                            <label for="{{ form.urgency.id_for_label }}" class="form-label"><strong>Urgency</strong></label>
+                                            {{ form.urgency }}
+                                            {% if form.urgency.errors %}
+                                                <div class="text-danger small">{{ form.urgency.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            {% if form.DELETE %}
+                                                <div class="form-check mt-4">
+                                                    {{ form.DELETE }}
+                                                    <label class="form-check-label text-danger">
+                                                        <i class="fas fa-trash"></i> Remove this test
+                                                    </label>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label for="{{ form.clinical_indication.id_for_label }}" class="form-label"><strong>Clinical Indication</strong></label>
+                                            {{ form.clinical_indication }}
+                                            {% if form.clinical_indication.errors %}
+                                                <div class="text-danger small">{{ form.clinical_indication.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="{{ form.notes.id_for_label }}" class="form-label"><strong>Additional Notes</strong></label>
+                                            {{ form.notes }}
+                                            {% if form.notes.errors %}
+                                                <div class="text-danger small">{{ form.notes.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-lab-order">
+                            <i class="fas fa-plus"></i> Add Lab Test
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prescriptions -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6><i class="fas fa-pills"></i> Prescriptions</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ prescription_formset.management_form }}
+                        <div id="prescription-forms">
+                            {% for form in prescription_formset %}
+                                <div class="prescription-form border-bottom pb-3 mb-3">
+                                    {% if form.non_field_errors %}
+                                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                                    {% endif %}
+                                    
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.drug_name.id_for_label }}" class="form-label">
+                                                <strong>Medication Name</strong> <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.drug_name }}
+                                            {% if form.drug_name.errors %}
+                                                <div class="text-danger small">{{ form.drug_name.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{{ form.drug_name.help_text }}</div>
+                                        </div>
+
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.common_drug.id_for_label }}" class="form-label">
+                                                <strong>Common Medications</strong> <small class="text-muted">(Optional)</small>
+                                            </label>
+                                            {{ form.common_drug }}
+                                            {% if form.common_drug.errors %}
+                                                <div class="text-danger small">{{ form.common_drug.errors }}</div>
+                                            {% endif %}
+                                            <div class="form-text">{{ form.common_drug.help_text }}</div>
+                                        </div>
+
+                                        <div class="col-6 mb-2">
+                                            <label for="{{ form.dosage.id_for_label }}" class="form-label"><strong>Dosage</strong> <span class="text-danger">*</span></label>
+                                            {{ form.dosage }}
+                                            {% if form.dosage.errors %}
+                                                <div class="text-danger small">{{ form.dosage.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label for="{{ form.frequency.id_for_label }}" class="form-label"><strong>Frequency</strong> <span class="text-danger">*</span></label>
+                                            {{ form.frequency }}
+                                            {% if form.frequency.errors %}
+                                                <div class="text-danger small">{{ form.frequency.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label for="{{ form.duration.id_for_label }}" class="form-label"><strong>Duration</strong> <span class="text-danger">*</span></label>
+                                            {{ form.duration }}
+                                            {% if form.duration.errors %}
+                                                <div class="text-danger small">{{ form.duration.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <label for="{{ form.route.id_for_label }}" class="form-label"><strong>Route</strong></label>
+                                            {{ form.route }}
+                                            {% if form.route.errors %}
+                                                <div class="text-danger small">{{ form.route.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label for="{{ form.instructions.id_for_label }}" class="form-label"><strong>Instructions</strong></label>
+                                            {{ form.instructions }}
+                                            {% if form.instructions.errors %}
+                                                <div class="text-danger small">{{ form.instructions.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-4 mb-2">
+                                            <label for="{{ form.indication.id_for_label }}" class="form-label"><strong>Indication</strong></label>
+                                            {{ form.indication }}
+                                            {% if form.indication.errors %}
+                                                <div class="text-danger small">{{ form.indication.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-4 mb-2">
+                                            <label for="{{ form.quantity.id_for_label }}" class="form-label"><strong>Quantity</strong></label>
+                                            {{ form.quantity }}
+                                            {% if form.quantity.errors %}
+                                                <div class="text-danger small">{{ form.quantity.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-4 mb-2">
+                                            <label for="{{ form.refills.id_for_label }}" class="form-label"><strong>Refills</strong></label>
+                                            {{ form.refills }}
+                                            {% if form.refills.errors %}
+                                                <div class="text-danger small">{{ form.refills.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-10 mb-2">
+                                            <label for="{{ form.notes.id_for_label }}" class="form-label"><strong>Additional Notes</strong></label>
+                                            {{ form.notes }}
+                                            {% if form.notes.errors %}
+                                                <div class="text-danger small">{{ form.notes.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-2 mb-2">
+                                            {% if form.DELETE %}
+                                                <div class="form-check mt-4">
+                                                    {{ form.DELETE }}
+                                                    <label class="form-check-label text-danger">
+                                                        <i class="fas fa-trash"></i> Remove
+                                                    </label>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-prescription">
+                            <i class="fas fa-plus"></i> Add Prescription
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Errors -->
+        {% if form.non_field_errors %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Submit Buttons -->
+        <div class="row">
+            <div class="col-12">
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'consultations:patient_search' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <div>
+                        <button type="submit" name="save_draft" class="btn btn-outline-primary">
+                            <i class="fas fa-save"></i> Save as Draft
+                        </button>
+                        <button type="submit" name="save_complete" class="btn btn-success">
+                            <i class="fas fa-check"></i> Complete Consultation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dynamic formset management
+function updateFormsetIndexes(formsetPrefix) {
+    const forms = document.querySelectorAll(`#${formsetPrefix}-forms .${formsetPrefix.replace('_', '-')}-form`);
+    const totalForms = document.querySelector(`#id_${formsetPrefix}-TOTAL_FORMS`);
+    
+    forms.forEach((form, index) => {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(/\d+/, index);
+                input.id = input.id.replace(/\d+/, index);
+            }
+        });
+        
+        const labels = form.querySelectorAll('label');
+        labels.forEach(label => {
+            if (label.getAttribute('for')) {
+                label.setAttribute('for', label.getAttribute('for').replace(/\d+/, index));
+            }
+        });
+    });
+    
+    totalForms.value = forms.length;
+}
+
+// Add lab order
+document.getElementById('add-lab-order').addEventListener('click', function() {
+    const formsetDiv = document.getElementById('lab-order-forms');
+    const totalForms = document.querySelector('#id_lab_orders-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value);
+    
+    // Clone the first form
+    const firstForm = formsetDiv.querySelector('.lab-order-form');
+    if (firstForm) {
+        const newForm = firstForm.cloneNode(true);
+        
+        // Clear values
+        const inputs = newForm.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type !== 'hidden') {
+                input.value = '';
+                input.checked = false;
+            }
+        });
+        
+        formsetDiv.appendChild(newForm);
+        updateFormsetIndexes('lab_orders');
+
+        // Set up event handlers for the new form
+        setupLabOrderFormHandlers(newForm);
+    }
+});
+
+// Set up lab order form handlers
+function setupLabOrderFormHandlers(form) {
+    const testNameField = form.querySelector('input[name*="test_name"]');
+    const commonTestField = form.querySelector('select[name*="common_test"]');
+
+    if (testNameField && commonTestField) {
+        // When common test is selected, populate test name field
+        commonTestField.addEventListener('change', function() {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.text && selectedOption.text !== 'Or select from common tests...') {
+                    testNameField.value = selectedOption.text;
+                    testNameField.style.backgroundColor = '#e3f2fd';
+
+                    // Show feedback
+                    showTestSelectionFeedback(form, `Selected: ${selectedOption.text}`);
+                }
+            } else {
+                testNameField.style.backgroundColor = '';
+                hideTestSelectionFeedback(form);
+            }
+        });
+
+        // When test name is manually entered, clear common test selection
+        testNameField.addEventListener('input', function() {
+            if (this.value && commonTestField.value) {
+                // Check if the entered text matches the selected common test
+                const selectedOption = commonTestField.options[commonTestField.selectedIndex];
+                if (selectedOption.text !== this.value) {
+                    commonTestField.value = '';
+                    this.style.backgroundColor = '';
+                    hideTestSelectionFeedback(form);
+                }
+            }
+        });
+    }
+}
+
+// Show test selection feedback
+function showTestSelectionFeedback(form, message) {
+    let feedback = form.querySelector('.test-selection-feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'test-selection-feedback alert alert-info py-1 px-2 mt-1';
+        feedback.style.fontSize = '0.875rem';
+        const testNameField = form.querySelector('input[name*="test_name"]');
+        testNameField.parentNode.appendChild(feedback);
+    }
+    feedback.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+}
+
+// Hide test selection feedback
+function hideTestSelectionFeedback(form) {
+    const feedback = form.querySelector('.test-selection-feedback');
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+// Initialize handlers for existing forms
+document.addEventListener('DOMContentLoaded', function() {
+    const existingLabForms = document.querySelectorAll('.lab-order-form');
+    existingLabForms.forEach(form => {
+        setupLabOrderFormHandlers(form);
+    });
+
+    const existingPrescriptionForms = document.querySelectorAll('.prescription-form');
+    existingPrescriptionForms.forEach(form => {
+        setupPrescriptionFormHandlers(form);
+    });
+});
+
+// Add prescription
+document.getElementById('add-prescription').addEventListener('click', function() {
+    const formsetDiv = document.getElementById('prescription-forms');
+    const totalForms = document.querySelector('#id_prescriptions-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value);
+    
+    // Clone the first form
+    const firstForm = formsetDiv.querySelector('.prescription-form');
+    if (firstForm) {
+        const newForm = firstForm.cloneNode(true);
+        
+        // Clear values
+        const inputs = newForm.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type !== 'hidden') {
+                input.value = '';
+                input.checked = false;
+            }
+        });
+        
+        formsetDiv.appendChild(newForm);
+        updateFormsetIndexes('prescriptions');
+
+        // Set up event handlers for the new form
+        setupPrescriptionFormHandlers(newForm);
+    }
+});
+
+// Set up prescription form handlers
+function setupPrescriptionFormHandlers(form) {
+    const drugNameField = form.querySelector('input[name*="drug_name"]');
+    const commonDrugField = form.querySelector('select[name*="common_drug"]');
+
+    if (drugNameField && commonDrugField) {
+        // When common drug is selected, populate drug name field
+        commonDrugField.addEventListener('change', function() {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.text && selectedOption.text !== 'Or select from common medications...') {
+                    drugNameField.value = selectedOption.text;
+                    drugNameField.style.backgroundColor = '#e8f5e8';
+
+                    // Show feedback
+                    showDrugSelectionFeedback(form, `Selected: ${selectedOption.text}`);
+                }
+            } else {
+                drugNameField.style.backgroundColor = '';
+                hideDrugSelectionFeedback(form);
+            }
+        });
+
+        // When drug name is manually entered, clear common drug selection
+        drugNameField.addEventListener('input', function() {
+            if (this.value && commonDrugField.value) {
+                // Check if the entered text matches the selected common drug
+                const selectedOption = commonDrugField.options[commonDrugField.selectedIndex];
+                if (selectedOption.text !== this.value) {
+                    commonDrugField.value = '';
+                    this.style.backgroundColor = '';
+                    hideDrugSelectionFeedback(form);
+                }
+            }
+        });
+    }
+}
+
+// Show drug selection feedback
+function showDrugSelectionFeedback(form, message) {
+    let feedback = form.querySelector('.drug-selection-feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'drug-selection-feedback alert alert-success py-1 px-2 mt-1';
+        feedback.style.fontSize = '0.875rem';
+        const drugNameField = form.querySelector('input[name*="drug_name"]');
+        drugNameField.parentNode.appendChild(feedback);
+    }
+    feedback.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+}
+
+// Hide drug selection feedback
+function hideDrugSelectionFeedback(form) {
+    const feedback = form.querySelector('.drug-selection-feedback');
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+// Handle referral checkbox
+document.getElementById('{{ form.referral_needed.id_for_label }}').addEventListener('change', function() {
+    const referralTo = document.getElementById('{{ form.referral_to.id_for_label }}');
+    const referralReason = document.getElementById('{{ form.referral_reason.id_for_label }}');
+    
+    if (this.checked) {
+        referralTo.required = true;
+        referralReason.required = true;
+    } else {
+        referralTo.required = false;
+        referralReason.required = false;
+        referralTo.value = '';
+        referralReason.value = '';
+    }
+});
+
+// Form validation
+document.getElementById('consultationForm').addEventListener('submit', function(e) {
+    const chiefComplaint = document.getElementById('{{ form.chief_complaint.id_for_label }}');
+    const workingDiagnosis = document.getElementById('{{ form.working_diagnosis.id_for_label }}');
+    
+    if (!chiefComplaint.value.trim()) {
+        e.preventDefault();
+        alert('Chief Complaint is required.');
+        chiefComplaint.focus();
+        return;
+    }
+    
+    if (!workingDiagnosis.value.trim()) {
+        e.preventDefault();
+        alert('Working Diagnosis is required.');
+        workingDiagnosis.focus();
+        return;
+    }
+});
+</script>
+{% endblock %}

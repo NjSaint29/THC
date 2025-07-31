@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block title %}Vitals Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'patients:vitals_dashboard' %}">
+        <i class="fas fa-heartbeat"></i> Vitals Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:vitals_search' %}">
+        <i class="fas fa-search"></i> Search Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-heartbeat"></i> Vitals Dashboard</h1>
+                <a href="{% url 'patients:vitals_search' %}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search Patients
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_patients }}</h4>
+                            <p class="mb-0">Total Patients</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ patients_with_vitals }}</h4>
+                            <p class="mb-0">With Vitals</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-heartbeat fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ patients_without_vitals|length }}</h4>
+                            <p class="mb-0">Pending Vitals</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ vitals_completion_rate }}%</h4>
+                            <p class="mb-0">Completion Rate</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Patients Needing Vitals -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock text-warning"></i> Patients Needing Vitals</h5>
+                </div>
+                <div class="card-body">
+                    {% if patients_without_vitals %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Campaign</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients_without_vitals %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ patient.patient_id }}</span>
+                                        </td>
+                                        <td>{{ patient.get_full_name }}</td>
+                                        <td>
+                                            <small class="text-muted">{{ patient.campaign.name }}</small>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'patients:vitals_entry' patient.pk %}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-heartbeat"></i> Record
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if patients_without_vitals|length >= 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'patients:vitals_search' %}?status=registered" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> View All Pending
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>All registered patients have vitals recorded!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Vitals -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history text-info"></i> Recent Vitals</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_vitals %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Vitals</th>
+                                        <th>Recorded</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for vitals in recent_vitals %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ vitals.patient.patient_id }}</strong><br>
+                                            <small>{{ vitals.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {% if vitals.blood_pressure_display %}
+                                                BP: {{ vitals.blood_pressure_display }}<br>
+                                                {% endif %}
+                                                {% if vitals.heart_rate %}
+                                                HR: {{ vitals.heart_rate }} bpm<br>
+                                                {% endif %}
+                                                {% if vitals.temperature %}
+                                                Temp: {{ vitals.temperature }}°C
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ vitals.updated_at|timesince }} ago<br>
+                                                by {{ vitals.recorded_by.get_full_name|default:vitals.recorded_by.username }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'patients:vitals_history' vitals.patient.pk %}" 
+                                                   class="btn btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'patients:vitals_entry' vitals.patient.pk %}" 
+                                                   class="btn btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-heartbeat fa-3x mb-3"></i>
+                            <p>No vitals recorded yet.</p>
+                            <a href="{% url 'patients:vitals_search' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Start Recording Vitals
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:vitals_search' %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-search"></i><br>
+                                Search Patients
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:vitals_search' %}?status=registered" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-clock"></i><br>
+                                Pending Vitals
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:vitals_search' %}?status=vitals_taken" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-check"></i><br>
+                                Completed Vitals
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:list' %}" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-users"></i><br>
+                                All Patients
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh dashboard every 5 minutes
+setTimeout(function() {
+    location.reload();
+}, 300000);
+
+// Add tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+});
+</script>
+{% endblock %}

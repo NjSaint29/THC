@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Registration Information - Tiko Health Campaign</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .info-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+        .info-header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .role-card {
+            border-left: 4px solid;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .role-card.registration { border-left-color: #28a745; }
+        .role-card.vitals { border-left-color: #17a2b8; }
+        .role-card.doctor { border-left-color: #007bff; }
+        .role-card.lab { border-left-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="info-container">
+        <div class="info-card">
+            <div class="info-header">
+                <h1><i class="fas fa-users"></i> Tiko Health Campaign</h1>
+                <h2>Staff Registration Information</h2>
+                <p class="mb-0">Join our healthcare team and make a difference!</p>
+            </div>
+            
+            <div class="p-4">
+                <!-- Introduction -->
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Welcome to Tiko Health Campaign!</h5>
+                    <p class="mb-0">
+                        We're building a comprehensive healthcare management system to serve our community. 
+                        As a staff member, you'll play a crucial role in delivering quality healthcare services.
+                    </p>
+                </div>
+
+                <!-- How to Register -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-clipboard-list"></i> How to Register</h4>
+                    <ol>
+                        <li><strong>Click the registration link</strong> provided by your administrator</li>
+                        <li><strong>Fill out the registration form</strong> with your personal information</li>
+                        <li><strong>Select your role</strong> based on your responsibilities</li>
+                        <li><strong>Create secure login credentials</strong> (username and password)</li>
+                        <li><strong>Submit the form</strong> to complete your registration</li>
+                        <li><strong>Log in</strong> with your new credentials to access your dashboard</li>
+                    </ol>
+                </div>
+
+                <!-- Available Roles -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-user-tag"></i> Available Staff Roles</h4>
+                    <p>Choose the role that matches your responsibilities in the health campaign:</p>
+
+                    <div class="role-card registration">
+                        <h5><i class="fas fa-user-plus"></i> 1️⃣ Registration Clerk</h5>
+                        <p><strong>Section A: Demographic and Biographic Data</strong></p>
+                        <ul>
+                            <li>Register new patients with auto-generated Patient IDs</li>
+                            <li>Collect demographic information (name, age, sex, contact details)</li>
+                            <li>Obtain patient consent for campaign participation</li>
+                            <li>Cannot access clinical data, consultations, or lab results</li>
+                        </ul>
+                    </div>
+
+                    <div class="role-card vitals">
+                        <h5><i class="fas fa-heartbeat"></i> 2️⃣ Vitals Clerk</h5>
+                        <p><strong>Section B: Clinical Parameters</strong></p>
+                        <ul>
+                            <li>Record patient vital signs (weight, temperature, blood pressure, heart rate)</li>
+                            <li>Measure height, blood glucose, and pregnancy-related parameters</li>
+                            <li>View patient demographics (read-only)</li>
+                            <li>Cannot edit demographics or access consultations/lab results</li>
+                        </ul>
+                    </div>
+
+                    <div class="role-card doctor">
+                        <h5><i class="fas fa-user-md"></i> 3️⃣ Doctor</h5>
+                        <p><strong>Sections C & E: Medical Consultation and Prescriptions</strong></p>
+                        <ul>
+                            <li>Conduct medical consultations and examinations</li>
+                            <li>Make diagnoses and treatment plans</li>
+                            <li>Order laboratory tests and write prescriptions</li>
+                            <li>View full patient records including lab results</li>
+                            <li>Cannot edit demographics or vital signs</li>
+                        </ul>
+                    </div>
+
+                    <div class="role-card lab">
+                        <h5><i class="fas fa-flask"></i> 4️⃣ Lab Technician</h5>
+                        <p><strong>Section D: Laboratory Test Results</strong></p>
+                        <ul>
+                            <li>Process laboratory test orders from doctors</li>
+                            <li>Enter test results with proper interpretation</li>
+                            <li>Handle critical values with immediate notification</li>
+                            <li>View patient demographics and vitals (read-only)</li>
+                            <li>Cannot edit demographics, vitals, or consultations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Registration Requirements -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-clipboard-check"></i> Registration Requirements</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Required Information:</h6>
+                            <ul>
+                                <li>Full name (first and last)</li>
+                                <li>Valid email address</li>
+                                <li>Unique username</li>
+                                <li>Secure password</li>
+                                <li>Role selection</li>
+                                <li>Phone number (optional)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Password Requirements:</h6>
+                            <ul>
+                                <li>At least 8 characters long</li>
+                                <li>Cannot be too common</li>
+                                <li>Cannot be entirely numeric</li>
+                                <li>Cannot be too similar to personal info</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- After Registration -->
+                <div class="mb-4">
+                    <h4><i class="fas fa-rocket"></i> After Registration</h4>
+                    <div class="alert alert-success">
+                        <h6>What happens next?</h6>
+                        <ol class="mb-0">
+                            <li><strong>Immediate Access:</strong> You can log in immediately after registration</li>
+                            <li><strong>Role-specific Dashboard:</strong> You'll see a dashboard tailored to your role</li>
+                            <li><strong>Training Materials:</strong> Your dashboard includes guides and instructions</li>
+                            <li><strong>Admin Oversight:</strong> Administrators can manage your account if needed</li>
+                            <li><strong>Support:</strong> Contact your administrator for any questions or issues</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <a href="{% url 'accounts:public_staff_register' %}" class="btn btn-success btn-lg me-3">
+                        <i class="fas fa-user-plus"></i> Register Now
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Already Registered? Login
+                    </a>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-question-circle"></i> 
+                        Need help? Contact your campaign administrator or IT support.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

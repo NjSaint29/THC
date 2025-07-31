@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+
+{% block title %}Critical Value Notification - {{ lab_result.lab_order.get_test_name }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-exclamation-triangle"></i> Critical Value Alert
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-danger">
+                    <i class="fas fa-exclamation-triangle"></i> CRITICAL VALUE NOTIFICATION
+                </h1>
+                <div>
+                    <a href="{% url 'laboratory:result_detail' pk=lab_result.pk %}" class="btn btn-outline-info">
+                        <i class="fas fa-eye"></i> View Full Result
+                    </a>
+                    <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Alert Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger border-danger" style="border-width: 3px;">
+                <div class="row align-items-center">
+                    <div class="col-md-1 text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <h4 class="alert-heading mb-2">CRITICAL VALUE DETECTED</h4>
+                        <p class="mb-2">
+                            <strong>This laboratory result contains critical values that require immediate clinical attention and notification.</strong>
+                        </p>
+                        <p class="mb-0">
+                            <strong>Patient:</strong> {{ lab_result.lab_order.consultation.patient.patient_id }} - {{ lab_result.lab_order.consultation.patient.get_full_name }} |
+                            <strong>Test:</strong> {{ lab_result.lab_order.get_test_name }} |
+                            <strong>Result:</strong> <span class="fs-5 fw-bold">{{ lab_result.result_value }} {{ lab_result.result_unit|default:"" }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient & Test Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Patient ID:</strong> <span class="badge bg-primary fs-6">{{ lab_result.lab_order.consultation.patient.patient_id }}</span></p>
+                    <p><strong>Name:</strong> {{ lab_result.lab_order.consultation.patient.get_full_name }}</p>
+                    <p><strong>Age/Gender:</strong> {{ lab_result.lab_order.consultation.patient.age }} years, {{ lab_result.lab_order.consultation.patient.get_gender_display }}</p>
+                    <p><strong>Phone:</strong> {{ lab_result.lab_order.consultation.patient.phone_number|default:"Not provided" }}</p>
+                    <p><strong>Campaign:</strong> {{ lab_result.lab_order.consultation.patient.campaign.name }}</p>
+                    <p><strong>Location:</strong> {{ lab_result.lab_order.consultation.patient.campaign.location }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-stethoscope"></i> Clinical Context</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Ordering Doctor:</strong> {{ lab_result.lab_order.consultation.doctor.get_full_name }}</p>
+                    <p><strong>Doctor Email:</strong> {{ lab_result.lab_order.consultation.doctor.email }}</p>
+                    <p><strong>Consultation Date:</strong> {{ lab_result.lab_order.consultation.consultation_date|date:"M d, Y g:i A" }}</p>
+                    <p><strong>Order Date:</strong> {{ lab_result.lab_order.ordered_date|date:"M d, Y g:i A" }}</p>
+                    {% if lab_result.lab_order.clinical_indication %}
+                        <p><strong>Clinical Indication:</strong><br>
+                            <span class="text-muted">{{ lab_result.lab_order.clinical_indication }}</span>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Result Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-chart-line"></i> Critical Laboratory Result</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-4 border border-danger rounded bg-danger bg-opacity-10">
+                                <h1 class="text-danger mb-2">{{ lab_result.result_value }}</h1>
+                                <h5 class="text-danger mb-3">{{ lab_result.result_unit|default:"" }}</h5>
+                                <span class="badge bg-danger fs-6">
+                                    <i class="fas fa-exclamation-triangle"></i> CRITICAL VALUE
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Test Name:</strong><br>{{ lab_result.lab_order.get_test_name }}</p>
+                                    <p><strong>Test Category:</strong><br>{{ lab_result.lab_order.get_test_category }}</p>
+                                    <p><strong>Reference Range:</strong><br>{{ lab_result.reference_range|default:"Not specified" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Result Date:</strong><br>{{ lab_result.result_date|date:"M d, Y g:i A" }}</p>
+                                    <p><strong>Technician:</strong><br>{{ lab_result.technician.get_full_name }}</p>
+                                    <p><strong>Sample Quality:</strong><br>{{ lab_result.get_sample_quality_display|default:"Not assessed" }}</p>
+                                </div>
+                            </div>
+                            {% if lab_result.clinical_conclusion %}
+                                <div class="mt-3">
+                                    <strong>Clinical Conclusion:</strong>
+                                    <div class="border-start border-danger ps-3 mt-2">
+                                        {{ lab_result.clinical_conclusion|linebreaks }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <h5><i class="fas fa-phone"></i> Critical Value Notification</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-4">
+                        <h6><i class="fas fa-info-circle"></i> Critical Value Protocol</h6>
+                        <p class="mb-2">According to laboratory policy, critical values must be:</p>
+                        <ul class="mb-0">
+                            <li>Communicated immediately to the ordering physician or designated representative</li>
+                            <li>Documented with the name of the person notified and time of notification</li>
+                            <li>Confirmed that the recipient understands the critical nature of the result</li>
+                            <li>Followed up to ensure appropriate clinical action is taken</li>
+                        </ul>
+                    </div>
+
+                    <form method="post" id="notificationForm">
+                        {% csrf_token %}
+                        
+                        <!-- Notification Method -->
+                        <div class="mb-4">
+                            <label for="{{ form.notification_method.id_for_label }}" class="form-label">
+                                <strong>Notification Method</strong> <span class="text-danger">*</span>
+                            </label>
+                            {{ form.notification_method }}
+                            {% if form.notification_method.errors %}
+                                <div class="text-danger small">{{ form.notification_method.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                How was the critical value communicated to the clinical team?
+                            </div>
+                        </div>
+
+                        <!-- Person Notified -->
+                        <div class="mb-4">
+                            <label for="{{ form.notified_person.id_for_label }}" class="form-label">
+                                <strong>Person Notified</strong> <span class="text-danger">*</span>
+                            </label>
+                            {{ form.notified_person }}
+                            {% if form.notified_person.errors %}
+                                <div class="text-danger small">{{ form.notified_person.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Full name and title of the person who received the critical value notification.
+                            </div>
+                        </div>
+
+                        <!-- Notification Time -->
+                        <div class="mb-4">
+                            <label for="{{ form.notification_time.id_for_label }}" class="form-label">
+                                <strong>Notification Time</strong> <span class="text-danger">*</span>
+                            </label>
+                            {{ form.notification_time }}
+                            {% if form.notification_time.errors %}
+                                <div class="text-danger small">{{ form.notification_time.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Exact date and time when the notification was made.
+                            </div>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <strong>Notification Notes</strong>
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small">{{ form.notes.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Additional details about the notification, recipient's response, or follow-up actions.
+                            </div>
+                        </div>
+
+                        <!-- Confirmation Checklist -->
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-clipboard-check"></i> Notification Checklist</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirm1" required>
+                                        <label class="form-check-label" for="confirm1">
+                                            I have personally communicated this critical value to a qualified healthcare provider
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirm2" required>
+                                        <label class="form-check-label" for="confirm2">
+                                            The recipient acknowledged understanding of the critical nature of this result
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirm3" required>
+                                        <label class="form-check-label" for="confirm3">
+                                            I have documented all required information accurately
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'laboratory:result_detail' pk=lab_result.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-check"></i> Confirm Critical Value Notification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-phone-alt"></i> Emergency Contacts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Primary Contacts</h6>
+                            <p><strong>Ordering Doctor:</strong> {{ lab_result.lab_order.consultation.doctor.get_full_name }}<br>
+                               <strong>Email:</strong> {{ lab_result.lab_order.consultation.doctor.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Backup Contacts</h6>
+                            <p><strong>Lab Supervisor:</strong> Contact lab supervisor if ordering doctor unavailable<br>
+                               <strong>Medical Director:</strong> For urgent clinical decisions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set current time as default notification time
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationTimeField = document.getElementById('{{ form.notification_time.id_for_label }}');
+    if (!notificationTimeField.value) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        notificationTimeField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+});
+
+// Form validation
+document.getElementById('notificationForm').addEventListener('submit', function(e) {
+    const method = document.getElementById('{{ form.notification_method.id_for_label }}').value;
+    const person = document.getElementById('{{ form.notified_person.id_for_label }}').value;
+    const time = document.getElementById('{{ form.notification_time.id_for_label }}').value;
+    
+    // Check required fields
+    if (!method || !person || !time) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Check confirmation checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][required]');
+    let allChecked = true;
+    checkboxes.forEach(checkbox => {
+        if (!checkbox.checked) {
+            allChecked = false;
+        }
+    });
+    
+    if (!allChecked) {
+        e.preventDefault();
+        alert('Please confirm all items in the notification checklist.');
+        return;
+    }
+    
+    // Final confirmation
+    if (!confirm('Are you sure you have completed the critical value notification as documented?')) {
+        e.preventDefault();
+    }
+});
+
+// Auto-suggest ordering doctor name
+document.getElementById('{{ form.notified_person.id_for_label }}').value = '{{ lab_result.lab_order.consultation.doctor.get_full_name }}';
+
+// Pulsing animation for critical value
+document.addEventListener('DOMContentLoaded', function() {
+    const criticalElements = document.querySelectorAll('.text-danger h1');
+    criticalElements.forEach(element => {
+        element.style.animation = 'pulse 2s infinite';
+    });
+});
+</script>
+
+<style>
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.border-danger {
+    border-width: 2px !important;
+}
+
+@media print {
+    .btn, nav, .no-print {
+        display: none !important;
+    }
+    
+    .alert, .card {
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+{% endblock %}

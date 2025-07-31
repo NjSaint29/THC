@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:patient_search' %}">
+        <i class="fas fa-search"></i> Find Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-stethoscope"></i> Consultation Dashboard</h1>
+                <a href="{% url 'consultations:patient_search' %}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Find Patients
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_consultations }}</h4>
+                            <p class="mb-0">Total Consultations</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-stethoscope fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ today_consultations }}</h4>
+                            <p class="mb-0">Today's Consultations</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ pending_consultations }}</h4>
+                            <p class="mb-0">Pending</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ patients_ready|length }}</h4>
+                            <p class="mb-0">Ready for Consultation</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Patients Ready for Consultation -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-check text-info"></i> Patients Ready for Consultation</h5>
+                </div>
+                <div class="card-body">
+                    {% if patients_ready %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Vitals</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients_ready %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ patient.patient_id }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ patient.get_full_name }}</strong><br>
+                                            <small class="text-muted">{{ patient.age }} years, {{ patient.get_gender_display }}</small>
+                                        </td>
+                                        <td>
+                                            {% if patient.clinical_parameters %}
+                                                <small>
+                                                    {% if patient.clinical_parameters.blood_pressure_display %}
+                                                    BP: {{ patient.clinical_parameters.blood_pressure_display }}<br>
+                                                    {% endif %}
+                                                    {% if patient.clinical_parameters.heart_rate %}
+                                                    HR: {{ patient.clinical_parameters.heart_rate }} bpm
+                                                    {% endif %}
+                                                </small>
+                                            {% else %}
+                                                <span class="badge bg-warning">No vitals</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'consultations:create' patient.pk %}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-stethoscope"></i> Consult
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if patients_ready|length >= 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'consultations:patient_search' %}?status=vitals_taken" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> View All Ready Patients
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-user-check fa-3x mb-3"></i>
+                            <p>No patients ready for consultation at the moment.</p>
+                            <a href="{% url 'consultations:patient_search' %}" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search Patients
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Consultations -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history text-success"></i> Recent Consultations</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_consultations %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Diagnosis</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consultation in recent_consultations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <small>{{ consultation.working_diagnosis|truncatechars:50 }}</small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ consultation.consultation_date|date:"M d, H:i" }}<br>
+                                                <span class="badge bg-{% if consultation.status == 'completed' %}success{% elif consultation.status == 'in_progress' %}warning{% else %}info{% endif %}">
+                                                    {{ consultation.get_status_display }}
+                                                </span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'consultations:detail' consultation.pk %}" 
+                                                   class="btn btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if consultation.status != 'completed' %}
+                                                <a href="{% url 'consultations:edit' consultation.pk %}" 
+                                                   class="btn btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-stethoscope fa-3x mb-3"></i>
+                            <p>No consultations yet.</p>
+                            <a href="{% url 'consultations:patient_search' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Start First Consultation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'consultations:patient_search' %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-search"></i><br>
+                                Find Patients
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'consultations:patient_search' %}?status=vitals_taken" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-user-check"></i><br>
+                                Ready for Consultation
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'consultations:patient_search' %}?status=consultation_done" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-check"></i><br>
+                                Completed Consultations
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'patients:list' %}" class="btn btn-outline-secondary w-100 mb-2">
+                                <i class="fas fa-users"></i><br>
+                                All Patients
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh dashboard every 5 minutes
+setTimeout(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

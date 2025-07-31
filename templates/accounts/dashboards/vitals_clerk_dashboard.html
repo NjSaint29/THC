@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Vitals Clerk Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:vitals_dashboard' %}">
+        <i class="fas fa-heartbeat"></i> Vitals Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:vitals_search' %}">
+        <i class="fas fa-search"></i> Search Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> All Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-heartbeat"></i> Vitals Clerk Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-info ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Search Patients</h5>
+                    <p>Find patients to record vitals</p>
+                    <a href="{% url 'patients:vitals_search' %}" class="btn btn-light">
+                        <i class="fas fa-search"></i> Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h5>Pending Vitals</h5>
+                    <p>Patients needing vitals</p>
+                    <a href="{% url 'patients:vitals_search' %}?status=registered" class="btn btn-light">
+                        <i class="fas fa-clock"></i> View Pending
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-heartbeat fa-3x mb-3"></i>
+                    <h5>Vitals Dashboard</h5>
+                    <p>Overview and statistics</p>
+                    <a href="{% url 'patients:vitals_dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>All Patients</h5>
+                    <p>View all patient records</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-users"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Vitals Clerk Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Vitals Clerk</strong>, you are responsible for recording and updating patient vital signs and clinical parameters.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Search Patients:</strong> Find patients by ID, name, or phone number</li>
+                        <li><strong>Record Vitals:</strong> Enter clinical parameters including:
+                            <ul>
+                                <li>Weight, Height, Temperature</li>
+                                <li>Blood Pressure (Systolic/Diastolic)</li>
+                                <li>Heart Rate</li>
+                                <li>Blood Glucose levels</li>
+                                <li>Women's health parameters (LMP, pregnancy status)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Update Records:</strong> Modify existing vital signs when needed</li>
+                        <li><strong>View Demographics:</strong> Access patient demographic information</li>
+                    </ul>
+                    
+                    <h6>Workflow:</h6>
+                    <ol>
+                        <li>Search for patient using Patient ID or name</li>
+                        <li>Verify patient identity and demographics</li>
+                        <li>Record or update vital signs</li>
+                        <li>Save the information to update patient status</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Quick Reference</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Normal Vital Sign Ranges:</h6>
+                    <small>
+                        <strong>Blood Pressure:</strong><br>
+                        • Normal: &lt;120/80 mmHg<br>
+                        • Elevated: 120-129/&lt;80<br>
+                        • Stage 1: 130-139/80-89<br>
+                        • Stage 2: ≥140/90<br><br>
+                        
+                        <strong>Heart Rate:</strong><br>
+                        • Normal: 60-100 bpm<br><br>
+                        
+                        <strong>Temperature:</strong><br>
+                        • Normal: 36.1-37.2°C<br><br>
+                        
+                        <strong>BMI Categories:</strong><br>
+                        • Underweight: &lt;18.5<br>
+                        • Normal: 18.5-24.9<br>
+                        • Overweight: 25-29.9<br>
+                        • Obese: ≥30<br><br>
+                        
+                        <strong>Blood Glucose:</strong><br>
+                        • Fasting: 70-100 mg/dL<br>
+                        • Random: &lt;140 mg/dL
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-keyboard"></i> Quick Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'patients:vitals_search' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Patient ID or Name</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search_query" 
+                                   placeholder="Enter Patient ID or Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Getting Started</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>First Time Using the System?</h6>
+                            <p>Follow these steps to get started:</p>
+                            <ol>
+                                <li>Click on "Search Patients" to find a patient</li>
+                                <li>Use the Patient ID (format: TIKO-2025-XXXX) for fastest search</li>
+                                <li>Click "Record" next to a patient to enter their vitals</li>
+                                <li>Fill in the vital signs form and save</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tips for Efficient Work:</h6>
+                            <ul>
+                                <li>Use the "Pending Vitals" view to see patients who need vitals recorded</li>
+                                <li>The system automatically calculates BMI and categorizes blood pressure</li>
+                                <li>You can update vitals multiple times if needed</li>
+                                <li>All changes are automatically logged for audit purposes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'patients:vitals_search' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play"></i> Start Recording Vitals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus quick search
+document.getElementById('quickSearch').focus();
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

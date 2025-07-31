@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Lab Orders - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-search"></i> Search Lab Orders</h1>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Quick Filters:</h6>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list"></i> All Orders
+                        </a>
+                        <a href="{% url 'laboratory:lab_order_search' %}?status=ordered" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-clock"></i> Awaiting Results
+                        </a>
+                        <a href="{% url 'laboratory:lab_order_search' %}?status=completed" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-check"></i> Completed
+                        </a>
+                        <a href="{% url 'laboratory:lab_order_search' %}?urgency=stat" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-exclamation"></i> STAT Orders
+                        </a>
+                        <a href="{% url 'laboratory:lab_order_search' %}?urgency=urgent" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-exclamation-triangle"></i> Urgent
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Advanced Search & Filter</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            {{ search_form.search_query.label_tag }}
+                            {{ search_form.search_query }}
+                            <small class="form-text text-muted">Search by Patient ID, Name, or Test Name</small>
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.status.label_tag }}
+                            {{ search_form.status }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.urgency.label_tag }}
+                            {{ search_form.urgency }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.test_category.label_tag }}
+                            {{ search_form.test_category }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Filter Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> All Orders
+                </a>
+                <a href="{% url 'laboratory:lab_order_search' %}?status=ordered" class="btn btn-outline-warning">
+                    <i class="fas fa-clock"></i> Pending
+                </a>
+                <a href="{% url 'laboratory:lab_order_search' %}?status=collected" class="btn btn-outline-info">
+                    <i class="fas fa-vial"></i> Collected
+                </a>
+                <a href="{% url 'laboratory:lab_order_search' %}?status=processing" class="btn btn-outline-primary">
+                    <i class="fas fa-cog"></i> Processing
+                </a>
+                <a href="{% url 'laboratory:lab_order_search' %}?urgency=stat" class="btn btn-outline-danger">
+                    <i class="fas fa-exclamation-triangle"></i> STAT Orders
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list"></i> Lab Orders</h5>
+                    {% if lab_orders %}
+                        <span class="badge bg-primary">{{ lab_orders.paginator.count }} order{{ lab_orders.paginator.count|pluralize }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if lab_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Test Details</th>
+                                        <th>Ordered</th>
+                                        <th>Status</th>
+                                        <th>Urgency</th>
+                                        <th>Clinical Info</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lab_order in lab_orders %}
+                                    <tr class="{% if lab_order.urgency == 'stat' %}table-danger{% elif lab_order.urgency == 'urgent' %}table-warning{% endif %}">
+                                        <td>
+                                            <div>
+                                                <strong>{{ lab_order.consultation.patient.patient_id }}</strong><br>
+                                                <small>{{ lab_order.consultation.patient.get_full_name }}</small><br>
+                                                <small class="text-muted">
+                                                    {{ lab_order.consultation.patient.age }}y, {{ lab_order.consultation.patient.get_gender_display }}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ lab_order.get_test_name }}</strong>
+                                                {% if lab_order.custom_test_name %}
+                                                    <span class="badge bg-info ms-1">Custom</span>
+                                                {% endif %}
+                                                <br>
+                                                <small class="text-muted">{{ lab_order.get_test_category }}</small><br>
+                                                {% if lab_order.get_specimen_type %}
+                                                    <small class="badge bg-light text-dark">{{ lab_order.get_specimen_type }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ lab_order.ordered_date|date:"M d, Y" }}<br>
+                                                {{ lab_order.ordered_date|time:"g:i A" }}<br>
+                                                <span class="text-muted">{{ lab_order.consultation.doctor.get_full_name }}</span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if lab_order.lab_status == 'ordered' %}
+                                                <span class="badge bg-warning">Awaiting Results</span>
+                                            {% elif lab_order.lab_status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif lab_order.lab_status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ lab_order.get_lab_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if lab_order.urgency == 'stat' %}
+                                                <span class="badge bg-danger">{{ lab_order.get_urgency_display }}</span>
+                                            {% elif lab_order.urgency == 'urgent' %}
+                                                <span class="badge bg-warning">{{ lab_order.get_urgency_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ lab_order.get_urgency_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if lab_order.clinical_indication %}
+                                                <small>{{ lab_order.clinical_indication|truncatechars:50 }}</small>
+                                            {% else %}
+                                                <span class="text-muted">No indication provided</span>
+                                            {% endif %}
+                                            {% if lab_order.notes %}
+                                                <br><small class="text-info">{{ lab_order.notes|truncatechars:30 }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                {% if lab_order.lab_status == 'ordered' %}
+                                                    <a href="{% url 'laboratory:result_entry' lab_order_pk=lab_order.pk %}"
+                                                       class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-edit"></i> Individual Entry
+                                                    </a>
+                                                    <a href="{% url 'laboratory:consultation_lab_results' consultation_pk=lab_order.consultation.pk %}"
+                                                       class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-table"></i> Table Entry
+                                                    </a>
+                                                {% elif lab_order.lab_status == 'completed' %}
+                                                    {% if lab_order.result %}
+                                                        <a href="{% url 'laboratory:result_entry' lab_order_pk=lab_order.pk %}"
+                                                           class="btn btn-outline-info btn-sm">
+                                                            <i class="fas fa-eye"></i> View Result
+                                                        </a>
+                                                        {% if lab_order.result.is_critical %}
+                                                            <span class="badge bg-danger ms-1">
+                                                                <i class="fas fa-exclamation-triangle"></i> CRITICAL
+                                                            </span>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <a href="{% url 'laboratory:result_entry' lab_order_pk=lab_order.pk %}"
+                                                           class="btn btn-warning btn-sm">
+                                                            <i class="fas fa-edit"></i> Enter Result
+                                                        </a>
+                                                        <small class="text-muted d-block">Result pending entry</small>
+                                                    {% endif %}
+                                                {% endif %}
+
+                                                <a href="{% url 'patients:detail' pk=lab_order.consultation.patient.pk %}"
+                                                   class="btn btn-outline-secondary btn-sm mt-1">
+                                                    <i class="fas fa-user"></i> Patient
+                                                </a>
+
+                                                <a href="{% url 'consultations:detail' pk=lab_order.consultation.pk %}"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-stethoscope"></i> Consultation
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if lab_orders.has_other_pages %}
+                        <nav aria-label="Lab orders pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if lab_orders.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ lab_orders.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in lab_orders.paginator.page_range %}
+                                    {% if lab_orders.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > lab_orders.number|add:'-3' and num < lab_orders.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if lab_orders.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ lab_orders.next_page_number }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No lab orders found</h5>
+                            <p class="text-muted">
+                                {% if request.GET.search_query or request.GET.status or request.GET.urgency %}
+                                    No lab orders match your search criteria. Try adjusting your filters.
+                                {% else %}
+                                    Use the search form above to find lab orders to process.
+                                {% endif %}
+                            </p>
+                            <div class="mt-3">
+                                <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-flask"></i> Back to Dashboard
+                                </a>
+                                <a href="{% url 'consultations:dashboard' %}" class="btn btn-outline-info">
+                                    <i class="fas fa-stethoscope"></i> View Consultations
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if lab_orders %}
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for order in lab_orders %}
+                            {% if order.status == 'ordered' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Pending Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for order in lab_orders %}
+                            {% if order.status == 'collected' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Sample Collected</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for order in lab_orders %}
+                            {% if order.status == 'processing' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Processing</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for order in lab_orders %}
+                            {% if order.urgency == 'stat' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">STAT Orders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit form on filter changes
+document.querySelectorAll('select[name="status"], select[name="urgency"], select[name="test_category"]').forEach(function(select) {
+    select.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+
+// Highlight STAT and urgent orders
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const urgencyBadge = row.querySelector('.badge');
+        if (urgencyBadge) {
+            if (urgencyBadge.textContent.includes('STAT')) {
+                row.classList.add('table-danger');
+            } else if (urgencyBadge.textContent.includes('Urgent')) {
+                row.classList.add('table-warning');
+            }
+        }
+    });
+});
+
+// Auto-focus search input
+document.querySelector('input[name="search_query"]').focus();
+</script>
+{% endblock %}

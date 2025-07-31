@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}Worksheet {{ worksheet.worksheet_number }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-clipboard-list"></i> Worksheet Details
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-clipboard-list"></i> Worksheet {{ worksheet.worksheet_number }}</h1>
+                <div>
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print"></i> Print Worksheet
+                    </button>
+                    <a href="{% url 'laboratory:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Information -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Worksheet Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Worksheet Number:</strong><br>
+                                <span class="badge bg-primary fs-6">{{ worksheet.worksheet_number }}</span>
+                            </p>
+                            <p><strong>Test Type:</strong><br>{{ worksheet.test_type.name }}</p>
+                            <p><strong>Category:</strong><br>{{ worksheet.test_type.category }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Technician:</strong><br>{{ worksheet.technician.get_full_name }}</p>
+                            <p><strong>Created:</strong><br>{{ worksheet.created_date|date:"M d, Y" }}</p>
+                            {% if worksheet.run_date %}
+                                <p><strong>Run Date:</strong><br>{{ worksheet.run_date|date:"M d, Y g:i A" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Worksheet Status</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if worksheet.status == 'created' %}
+                            <span class="badge bg-secondary fs-5">{{ worksheet.get_status_display }}</span>
+                        {% elif worksheet.status == 'in_progress' %}
+                            <span class="badge bg-warning fs-5">{{ worksheet.get_status_display }}</span>
+                        {% elif worksheet.status == 'completed' %}
+                            <span class="badge bg-success fs-5">{{ worksheet.get_status_display }}</span>
+                        {% elif worksheet.status == 'reviewed' %}
+                            <span class="badge bg-primary fs-5">{{ worksheet.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                    <p><strong>{{ lab_orders|length }}</strong> samples</p>
+                    {% if worksheet.status == 'created' %}
+                        <button class="btn btn-warning btn-sm" onclick="updateWorksheetStatus('in_progress')">
+                            <i class="fas fa-play"></i> Start Processing
+                        </button>
+                    {% elif worksheet.status == 'in_progress' %}
+                        <button class="btn btn-success btn-sm" onclick="updateWorksheetStatus('completed')">
+                            <i class="fas fa-check"></i> Mark Complete
+                        </button>
+                    {% elif worksheet.status == 'completed' %}
+                        <button class="btn btn-primary btn-sm" onclick="updateWorksheetStatus('reviewed')">
+                            <i class="fas fa-check-circle"></i> Mark Reviewed
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quality Control -->
+    {% if worksheet.control_results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-shield-alt"></i> Quality Control Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="border-start border-success ps-3">
+                        {{ worksheet.control_results|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lab Orders in Worksheet -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list"></i> Lab Orders in Worksheet</h5>
+                    {% if worksheet.status == 'created' %}
+                        <button class="btn btn-outline-primary btn-sm" onclick="showAddOrdersModal()">
+                            <i class="fas fa-plus"></i> Add Orders
+                        </button>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if lab_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Position</th>
+                                        <th>Patient</th>
+                                        <th>Sample Info</th>
+                                        <th>Order Details</th>
+                                        <th>Status</th>
+                                        <th>Result</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for worksheet_order in lab_orders %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ worksheet_order.position }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ worksheet_order.lab_order.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ worksheet_order.lab_order.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <strong>Specimen:</strong> {{ worksheet_order.lab_order.lab_test.specimen_type|default:"Not specified" }}<br>
+                                                <strong>Ordered:</strong> {{ worksheet_order.lab_order.ordered_date|date:"M d" }}<br>
+                                                {% if worksheet_order.lab_order.urgency == 'stat' %}
+                                                    <span class="badge bg-danger">{{ worksheet_order.lab_order.get_urgency_display }}</span>
+                                                {% elif worksheet_order.lab_order.urgency == 'urgent' %}
+                                                    <span class="badge bg-warning">{{ worksheet_order.lab_order.get_urgency_display }}</span>
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <strong>Doctor:</strong> {{ worksheet_order.lab_order.consultation.doctor.get_full_name }}<br>
+                                                {% if worksheet_order.lab_order.clinical_indication %}
+                                                    <strong>Indication:</strong> {{ worksheet_order.lab_order.clinical_indication|truncatechars:50 }}
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if worksheet_order.lab_order.status == 'ordered' %}
+                                                <span class="badge bg-warning">{{ worksheet_order.lab_order.get_status_display }}</span>
+                                            {% elif worksheet_order.lab_order.status == 'collected' %}
+                                                <span class="badge bg-info">{{ worksheet_order.lab_order.get_status_display }}</span>
+                                            {% elif worksheet_order.lab_order.status == 'processing' %}
+                                                <span class="badge bg-primary">{{ worksheet_order.lab_order.get_status_display }}</span>
+                                            {% elif worksheet_order.lab_order.status == 'completed' %}
+                                                <span class="badge bg-success">{{ worksheet_order.lab_order.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if worksheet_order.lab_order.result.exists %}
+                                                {% for result in worksheet_order.lab_order.result.all %}
+                                                    <div class="{% if result.is_critical %}text-danger{% elif result.interpretation == 'abnormal' %}text-warning{% else %}text-success{% endif %}">
+                                                        <strong>{{ result.result_value }} {{ result.result_unit|default:"" }}</strong>
+                                                        {% if result.is_critical %}
+                                                            <br><small class="badge bg-danger">CRITICAL</small>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm">
+                                                {% if not worksheet_order.lab_order.result.exists %}
+                                                    <a href="{% url 'laboratory:result_entry' lab_order_pk=worksheet_order.lab_order.pk %}" 
+                                                       class="btn btn-outline-success btn-sm">
+                                                        <i class="fas fa-plus"></i> Enter Result
+                                                    </a>
+                                                {% else %}
+                                                    {% for result in worksheet_order.lab_order.result.all %}
+                                                        <a href="{% url 'laboratory:result_detail' pk=result.pk %}" 
+                                                           class="btn btn-outline-info btn-sm">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                
+                                                <a href="{% url 'patients:detail' pk=worksheet_order.lab_order.consultation.patient.pk %}" 
+                                                   class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-user"></i> Patient
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Lab Orders Added</h5>
+                            <p class="text-muted">Add lab orders to this worksheet to begin batch processing.</p>
+                            {% if worksheet.status == 'created' %}
+                                <button class="btn btn-primary" onclick="showAddOrdersModal()">
+                                    <i class="fas fa-plus"></i> Add Lab Orders
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Notes -->
+    {% if worksheet.notes %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-sticky-note"></i> Worksheet Notes</h5>
+                </div>
+                <div class="card-body">
+                    {{ worksheet.notes|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Worksheet Summary -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>{{ lab_orders|length }}</h3>
+                    <p class="mb-0">Total Samples</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>
+                        {% for order in lab_orders %}
+                            {% if order.lab_order.result.exists %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h3>
+                    <p class="mb-0">Results Entered</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3>
+                        {% for order in lab_orders %}
+                            {% if not order.lab_order.result.exists %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h3>
+                    <p class="mb-0">Pending Results</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>
+                        {% for order in lab_orders %}
+                            {% for result in order.lab_order.result.all %}
+                                {% if result.is_critical %}{{ forloop.counter0|add:1 }}{% endif %}
+                            {% endfor %}
+                        {% empty %}0{% endfor %}
+                    </h3>
+                    <p class="mb-0">Critical Results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Orders Modal (placeholder) -->
+<div class="modal fade" id="addOrdersModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Lab Orders to Worksheet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>This feature allows you to add lab orders to the worksheet for batch processing.</p>
+                <p class="text-muted">Implementation would include a search interface to find and select lab orders of the same test type.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update worksheet status
+function updateWorksheetStatus(newStatus) {
+    if (confirm(`Are you sure you want to change the worksheet status to "${newStatus.replace('_', ' ')}"?`)) {
+        // In a real implementation, this would make an AJAX call
+        alert('Status update functionality would be implemented here.');
+    }
+}
+
+// Show add orders modal
+function showAddOrdersModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addOrdersModal'));
+    modal.show();
+}
+
+// Print functionality
+function printWorksheet() {
+    window.print();
+}
+
+// Highlight critical results
+document.addEventListener('DOMContentLoaded', function() {
+    const criticalElements = document.querySelectorAll('.text-danger');
+    criticalElements.forEach(element => {
+        element.style.fontWeight = 'bold';
+    });
+});
+</script>
+
+<style>
+@media print {
+    .btn, .modal, nav, .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .table {
+        border: 1px solid #000 !important;
+    }
+    
+    .badge {
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

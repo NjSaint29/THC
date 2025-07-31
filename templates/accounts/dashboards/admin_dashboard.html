@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'admin:index' %}">
+        <i class="fas fa-cog"></i> Admin Panel
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-tasks"></i> Campaigns
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-danger ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-cog fa-3x mb-3"></i>
+                    <h5>Admin Panel</h5>
+                    <p>Full system administration</p>
+                    <a href="{% url 'admin:index' %}" class="btn btn-light">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x mb-3"></i>
+                    <h5>Campaign Management</h5>
+                    <p>Manage all campaigns</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-tasks"></i> Campaigns
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>User Management</h5>
+                    <p>Manage system users</p>
+                    <a href="{% url 'admin:accounts_user_changelist' %}" class="btn btn-light">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <h5>System Reports</h5>
+                    <p>View system analytics</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Administrator Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As an <strong>Administrator</strong>, you have full access to all system functions and are responsible for overall system management and configuration.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>User Management:</strong> Create, modify, and deactivate user accounts
+                            <ul>
+                                <li>Assign user roles and permissions</li>
+                                <li>Reset passwords and manage access</li>
+                                <li>Monitor user activity and audit logs</li>
+                            </ul>
+                        </li>
+                        <li><strong>Campaign Oversight:</strong> Supervise all health campaigns
+                            <ul>
+                                <li>Review and approve campaign configurations</li>
+                                <li>Monitor campaign progress and statistics</li>
+                                <li>Manage lab tests and drug formularies</li>
+                            </ul>
+                        </li>
+                        <li><strong>System Configuration:</strong> Configure system-wide settings
+                            <ul>
+                                <li>Manage lab tests and reference ranges</li>
+                                <li>Configure drug formularies</li>
+                                <li>Set up system parameters</li>
+                            </ul>
+                        </li>
+                        <li><strong>Data Management:</strong> Oversee data integrity and security
+                            <ul>
+                                <li>Monitor system performance</li>
+                                <li>Review audit trails</li>
+                                <li>Manage data exports and reports</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h6>Administrative Tools:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li>Django Admin Panel - Full CRUD access</li>
+                                <li>User Role Management</li>
+                                <li>Campaign Configuration</li>
+                                <li>Lab Test Management</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li>Drug Formulary Management</li>
+                                <li>System Audit Logs</li>
+                                <li>Data Export Tools</li>
+                                <li>System Reports</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tools"></i> Quick Admin Tools</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'admin:accounts_user_changelist' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-users"></i> Manage Users
+                        </a>
+                        <a href="{% url 'admin:campaigns_campaign_changelist' %}" class="btn btn-outline-success">
+                            <i class="fas fa-tasks"></i> Manage Campaigns
+                        </a>
+                        <a href="{% url 'admin:campaigns_labtest_changelist' %}" class="btn btn-outline-info">
+                            <i class="fas fa-flask"></i> Manage Lab Tests
+                        </a>
+                        <a href="{% url 'admin:campaigns_drug_changelist' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-pills"></i> Manage Drugs
+                        </a>
+                        <a href="{% url 'admin:patients_patient_changelist' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-injured"></i> View Patients
+                        </a>
+                        <a href="{% url 'admin:accounts_auditlog_changelist' %}" class="btn btn-outline-dark">
+                            <i class="fas fa-history"></i> Audit Logs
+                        </a>
+                        <a href="{% url 'accounts:staff_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-users-cog"></i> Staff Management
+                        </a>
+                        <a href="{% url 'accounts:role_permissions' %}" class="btn btn-outline-info">
+                            <i class="fas fa-shield-alt"></i> Role Permissions
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ total_users|default:0 }}</h4>
+                            <small>Total Users</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ total_campaigns|default:0 }}</h4>
+                            <small>Campaigns</small>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <h4 class="text-info">{{ total_patients|default:0 }}</h4>
+                            <small>Patients</small>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <h4 class="text-warning">{{ total_consultations|default:0 }}</h4>
+                            <small>Consultations</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Administrative Quick Start</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>System Setup Tasks:</h6>
+                            <ol>
+                                <li>Create user accounts and assign roles</li>
+                                <li>Set up campaigns with lab tests and formularies</li>
+                                <li>Configure system parameters</li>
+                                <li>Train users on their respective modules</li>
+                                <li>Monitor system usage and performance</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Regular Administrative Tasks:</h6>
+                            <ul>
+                                <li>Review audit logs for security</li>
+                                <li>Monitor campaign progress</li>
+                                <li>Manage user access and permissions</li>
+                                <li>Update lab tests and drug formularies</li>
+                                <li>Generate system reports</li>
+                                <li>Backup and maintain data integrity</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'admin:index' %}" class="btn btn-danger btn-lg">
+                            <i class="fas fa-cog"></i> Access Admin Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any admin-specific JavaScript here
+console.log('Admin Dashboard Loaded');
+</script>
+{% endblock %}

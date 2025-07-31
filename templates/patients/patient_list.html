@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient List - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+{% if user_permissions.can_edit_demographics %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:register' %}">
+        <i class="fas fa-user-plus"></i> Register Patient
+    </a>
+</li>
+{% endif %}
+{% if user_permissions.can_record_vitals %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:vitals_dashboard' %}">
+        <i class="fas fa-heartbeat"></i> Vitals Dashboard
+    </a>
+</li>
+{% endif %}
+{% if user_permissions.can_create_consultation %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+{% endif %}
+{% if user_permissions.can_view_lab_results %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Laboratory
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-users"></i> Patient List</h1>
+                <div>
+                    {% if user_permissions.can_edit_demographics %}
+                        <a href="{% url 'patients:register' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Register New Patient
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Search & Filter Patients</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ search_form.search_query.id_for_label }}" class="form-label">Search</label>
+                            {{ search_form.search_query }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="{{ search_form.campaign.id_for_label }}" class="form-label">Campaign</label>
+                            {{ search_form.campaign }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="{{ search_form.status.id_for_label }}" class="form-label">Status</label>
+                            {{ search_form.status }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="{{ search_form.gender.id_for_label }}" class="form-label">Gender</label>
+                            {{ search_form.gender }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list"></i> Patients</h5>
+                    <span class="badge bg-primary fs-6">{{ page_obj.paginator.count }} patient{{ page_obj.paginator.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if page_obj %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Age/Gender</th>
+                                        <th>Phone</th>
+                                        <th>Campaign</th>
+                                        <th>Status</th>
+                                        <th>Registered</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary fs-6">{{ patient.patient_id }}</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ patient.get_full_name }}</strong>
+                                            </div>
+                                            {% if patient.email %}
+                                                <small class="text-muted">{{ patient.email }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ patient.age }} years<br>
+                                            <small class="text-muted">{{ patient.get_gender_display }}</small>
+                                        </td>
+                                        <td>
+                                            {% if patient.phone_number %}
+                                                {{ patient.phone_number }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ patient.campaign.name }}</span>
+                                            <br><small class="text-muted">{{ patient.campaign.location }}</small>
+                                        </td>
+                                        <td>
+                                            {% if patient.status == 'registered' %}
+                                                <span class="badge bg-warning">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'vitals_taken' %}
+                                                <span class="badge bg-success">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'consultation_done' %}
+                                                <span class="badge bg-info">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'lab_ordered' %}
+                                                <span class="badge bg-primary">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'lab_completed' %}
+                                                <span class="badge bg-secondary">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'treatment_completed' %}
+                                                <span class="badge bg-dark">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'discharged' %}
+                                                <span class="badge bg-light text-dark">{{ patient.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ patient.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ patient.registration_date|date:"M d, Y" }}<br>
+                                                by {{ patient.registered_by.get_full_name }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                <!-- Role-based action buttons -->
+                                                
+                                                <!-- Registration Clerks: Only Edit Demographics -->
+                                                {% if user_permissions.can_edit_demographics and user.role == 'registration_clerk' %}
+                                                    <a href="{% url 'patients:edit' pk=patient.pk %}" class="btn btn-outline-warning">
+                                                        <i class="fas fa-edit"></i> Edit Demographics
+                                                    </a>
+                                                
+                                                <!-- Vitals Clerks: Only Record Vitals -->
+                                                {% elif user_permissions.can_record_vitals and user.role == 'vitals_clerk' %}
+                                                    <a href="{% url 'patients:vitals_entry' patient_pk=patient.pk %}" class="btn btn-outline-success">
+                                                        <i class="fas fa-heartbeat"></i> Record Vitals
+                                                    </a>
+                                                
+                                                <!-- Doctors: View Details and Create Consultation -->
+                                                {% elif user_permissions.can_create_consultation and user.role == 'doctor' %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                    {% if patient.status == 'vitals_taken' %}
+                                                        <a href="{% url 'consultations:create' patient_pk=patient.pk %}" class="btn btn-outline-primary">
+                                                            <i class="fas fa-stethoscope"></i> Create Consultation
+                                                        </a>
+                                                    {% endif %}
+                                                
+                                                <!-- Lab Technicians: View Details and Lab Results -->
+                                                {% elif user_permissions.can_view_lab_results and user.role == 'lab_technician' %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                    <a href="{% url 'laboratory:patient_results' patient_pk=patient.pk %}" class="btn btn-outline-secondary">
+                                                        <i class="fas fa-flask"></i> View Lab Results
+                                                    </a>
+                                                
+                                                <!-- Pharmacy Clerks: View Details and Prescriptions -->
+                                                {% elif user_permissions.can_view_prescriptions and user.role == 'pharmacy_clerk' %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}#prescriptions" class="btn btn-outline-success">
+                                                        <i class="fas fa-pills"></i> View Prescriptions
+                                                    </a>
+                                                
+                                                <!-- Campaign Managers & Data Analysts: View Details Only -->
+                                                {% elif user_permissions.is_campaign_manager or user_permissions.is_data_analyst %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                
+                                                <!-- Administrators: All Buttons -->
+                                                {% elif user_permissions.is_admin %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                    <a href="{% url 'patients:edit' pk=patient.pk %}" class="btn btn-outline-warning">
+                                                        <i class="fas fa-edit"></i> Edit Demographics
+                                                    </a>
+                                                    <a href="{% url 'patients:vitals_entry' patient_pk=patient.pk %}" class="btn btn-outline-success">
+                                                        <i class="fas fa-heartbeat"></i> Record Vitals
+                                                    </a>
+                                                    {% if patient.status == 'vitals_taken' %}
+                                                        <a href="{% url 'consultations:create' patient_pk=patient.pk %}" class="btn btn-outline-primary">
+                                                            <i class="fas fa-stethoscope"></i> Consultation
+                                                        </a>
+                                                    {% endif %}
+                                                
+                                                <!-- Default: View Details Only -->
+                                                {% else %}
+                                                    <a href="{% url 'patients:detail' pk=patient.pk %}" class="btn btn-outline-info">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Patient list pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.campaign %}&campaign={{ request.GET.campaign }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.campaign %}&campaign={{ request.GET.campaign }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.campaign %}&campaign={{ request.GET.campaign }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.campaign %}&campaign={{ request.GET.campaign }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Patients Found</h5>
+                            <p class="text-muted">No patients match your search criteria.</p>
+                            {% if user_permissions.can_edit_demographics %}
+                                <a href="{% url 'patients:register' %}" class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> Register First Patient
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit search form on filter changes
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelects = document.querySelectorAll('select[name="campaign"], select[name="status"], select[name="gender"]');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            this.form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}

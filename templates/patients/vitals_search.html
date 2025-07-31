@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Patients for Vitals - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:vitals_dashboard' %}">
+        <i class="fas fa-heartbeat"></i> Vitals Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'patients:vitals_search' %}">
+        <i class="fas fa-search"></i> Search Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-search"></i> Search Patients for Vitals</h1>
+                <a href="{% url 'patients:vitals_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ search_form.search_query.id_for_label }}" class="form-label">
+                                Search Patient
+                            </label>
+                            {{ search_form.search_query }}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ search_form.campaign.id_for_label }}" class="form-label">
+                                Campaign
+                            </label>
+                            {{ search_form.campaign }}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ search_form.status.id_for_label }}" class="form-label">
+                                Status
+                            </label>
+                            {{ search_form.status }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            {% if patients %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list"></i> Search Results ({{ patients.paginator.count }} patients found)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Age/Gender</th>
+                                        <th>Campaign</th>
+                                        <th>Status</th>
+                                        <th>Vitals Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ patient.patient_id }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ patient.get_full_name }}</strong>
+                                            {% if patient.phone_number %}
+                                            <br><small class="text-muted">{{ patient.phone_number }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ patient.age }} years<br>
+                                            <small class="text-muted">{{ patient.get_gender_display }}</small>
+                                        </td>
+                                        <td>
+                                            <small>{{ patient.campaign.name }}</small>
+                                        </td>
+                                        <td>
+                                            {% with status_info=patient.get_current_status_display %}
+                                            <span class="badge bg-{{ status_info.color }}">
+                                                {{ status_info.status }}
+                                            </span>
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% if patient.clinical_parameters %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Recorded
+                                                </span>
+                                                <br><small class="text-muted">
+                                                    {{ patient.clinical_parameters.updated_at|date:"M d, H:i" }}
+                                                </small>
+                                            {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                {% if patient.clinical_parameters %}
+                                                    <a href="{% url 'patients:vitals_history' patient.pk %}" 
+                                                       class="btn btn-outline-info" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="View Vitals">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'patients:vitals_entry' patient.pk %}" 
+                                                       class="btn btn-outline-warning"
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Update Vitals">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'patients:vitals_entry' patient.pk %}" 
+                                                       class="btn btn-primary"
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Record Vitals">
+                                                        <i class="fas fa-heartbeat"></i> Record
+                                                    </a>
+                                                {% endif %}
+                                                <a href="{% url 'patients:detail' patient.pk %}" 
+                                                   class="btn btn-outline-secondary"
+                                                   data-bs-toggle="tooltip" 
+                                                   title="Patient Details">
+                                                    <i class="fas fa-user"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if patients.has_other_pages %}
+                <nav aria-label="Patient search pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if patients.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_form.search_query.value %}&search_query={{ search_form.search_query.value }}{% endif %}{% if search_form.campaign.value %}&campaign={{ search_form.campaign.value }}{% endif %}{% if search_form.status.value %}&status={{ search_form.status.value }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.previous_page_number }}{% if search_form.search_query.value %}&search_query={{ search_form.search_query.value }}{% endif %}{% if search_form.campaign.value %}&campaign={{ search_form.campaign.value }}{% endif %}{% if search_form.status.value %}&status={{ search_form.status.value }}{% endif %}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ patients.number }} of {{ patients.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if patients.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.next_page_number }}{% if search_form.search_query.value %}&search_query={{ search_form.search_query.value }}{% endif %}{% if search_form.campaign.value %}&campaign={{ search_form.campaign.value }}{% endif %}{% if search_form.status.value %}&status={{ search_form.status.value }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.paginator.num_pages }}{% if search_form.search_query.value %}&search_query={{ search_form.search_query.value }}{% endif %}{% if search_form.campaign.value %}&campaign={{ search_form.campaign.value }}{% endif %}{% if search_form.status.value %}&status={{ search_form.status.value }}{% endif %}">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% elif request.GET.search_query or request.GET.campaign or request.GET.status %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No patients found</h5>
+                        <p class="text-muted">
+                            No patients match your search criteria. Try adjusting your search terms.
+                        </p>
+                        <a href="{% url 'patients:vitals_search' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-refresh"></i> Clear Search
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>Search for Patients</h5>
+                        <p class="text-muted">
+                            Use the search form above to find patients for vitals recording.
+                        </p>
+                        
+                        <!-- Quick Search Options -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <a href="?status=registered" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-clock"></i><br>
+                                    Patients Needing Vitals
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="?status=vitals_taken" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-check"></i><br>
+                                    Patients with Vitals
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="?search_query=" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-users"></i><br>
+                                    All Patients
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+});
+
+// Auto-focus search input
+document.getElementById('id_search_query').focus();
+
+// Clear form function
+function clearForm() {
+    document.getElementById('id_search_query').value = '';
+    document.getElementById('id_campaign').selectedIndex = 0;
+    document.getElementById('id_status').selectedIndex = 0;
+}
+</script>
+{% endblock %}

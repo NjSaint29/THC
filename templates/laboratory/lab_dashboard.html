@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+
+{% block title %}Laboratory Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-flask"></i> Laboratory Dashboard</h1>
+                <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search Orders
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_pending }}</h4>
+                            <p class="mb-0">Pending Orders</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ today_results }}</h4>
+                            <p class="mb-0">Today's Results</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_results }}</h4>
+                            <p class="mb-0">Total Results</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-flask fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ critical_results|length }}</h4>
+                            <p class="mb-0">Critical Values</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Results Alert -->
+    {% if critical_results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-triangle"></i> Critical Values Requiring Notification</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Test</th>
+                                <th>Result</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in critical_results %}
+                            <tr>
+                                <td><strong>{{ result.lab_order.consultation.patient.patient_id }}</strong></td>
+                                <td>{{ result.lab_order.get_test_name }}</td>
+                                <td>{{ result.result_value }} {{ result.result_unit|default:"" }}</td>
+                                <td>
+                                    <a href="{% url 'laboratory:critical_notification' result.pk %}" 
+                                       class="btn btn-sm btn-danger">
+                                        <i class="fas fa-phone"></i> Notify
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Pending Lab Orders -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock text-warning"></i> Pending Lab Orders</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Test</th>
+                                        <th>Urgency</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in pending_orders %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ order.consultation.patient.patient_id }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ order.get_test_name }}</strong><br>
+                                            <small class="text-muted">{{ order.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{% if order.urgency == 'stat' %}danger{% elif order.urgency == 'urgent' %}warning{% else %}secondary{% endif %}">
+                                                {{ order.get_urgency_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if order.result %}
+                                                <a href="{% url 'laboratory:result_detail' order.result.pk %}" 
+                                                   class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'laboratory:result_entry' order.pk %}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-plus"></i> Enter Result
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if pending_orders|length >= 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'laboratory:lab_order_search' %}?status=ordered" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> View All Pending
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>No pending lab orders!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history text-success"></i> Recent Results</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_results %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Test & Result</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in recent_results %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ result.lab_order.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ result.lab_order.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ result.lab_order.get_test_name }}</strong><br>
+                                            <small>
+                                                {{ result.result_value|truncatechars:20 }} {{ result.result_unit|default:"" }}
+                                                {% if result.interpretation %}
+                                                <span class="badge bg-{{ result.get_interpretation_color }}">
+                                                    {{ result.get_interpretation_display }}
+                                                </span>
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ result.result_date|date:"M d, H:i" }}<br>
+                                                <span class="badge bg-{% if result.status == 'completed' %}success{% elif result.status == 'verified' %}primary{% else %}secondary{% endif %}">
+                                                    {{ result.get_status_display }}
+                                                </span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'laboratory:result_detail' result.pk %}" 
+                                                   class="btn btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if result.status != 'verified' %}
+                                                <a href="{% url 'laboratory:result_entry' result.lab_order.pk %}" 
+                                                   class="btn btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-flask fa-3x mb-3"></i>
+                            <p>No results entered yet.</p>
+                            <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Start Entering Results
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-search"></i><br>
+                                Search Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'laboratory:lab_order_search' %}?status=ordered" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-clock"></i><br>
+                                Pending Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'laboratory:lab_order_search' %}?urgency=stat" class="btn btn-outline-danger w-100 mb-2">
+                                <i class="fas fa-exclamation"></i><br>
+                                STAT Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'laboratory:worksheet_create' %}" class="btn btn-outline-info w-100 mb-2">
+                                <i class="fas fa-clipboard-list"></i><br>
+                                New Worksheet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh dashboard every 5 minutes
+setTimeout(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

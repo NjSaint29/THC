@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Management - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:staff_list' %}">
+        <i class="fas fa-users"></i> Staff List
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:staff_register' %}">
+        <i class="fas fa-user-plus"></i> Register Staff
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:role_permissions' %}">
+        <i class="fas fa-shield-alt"></i> Role Permissions
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-users"></i> Staff Management</h1>
+                <a href="{% url 'accounts:staff_register' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Register New Staff
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search_query }}" placeholder="Name, username, or email">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" name="role">
+                                <option value="">All Roles</option>
+                                {% for value, label in role_choices %}
+                                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Staff Members ({{ users.paginator.count }} total)</h5>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for staff_user in users %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ staff_user.get_full_name|default:staff_user.username }}</strong>
+                                            {% if staff_user.phone_number %}
+                                                <br><small class="text-muted">{{ staff_user.phone_number }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ staff_user.username }}</td>
+                                        <td>{{ staff_user.email|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if staff_user.role == 'admin' %}danger{% elif staff_user.role == 'doctor' %}primary{% elif staff_user.role == 'registration_clerk' %}success{% elif staff_user.role == 'vitals_clerk' %}info{% elif staff_user.role == 'lab_technician' %}warning{% else %}secondary{% endif %}">
+                                                {{ staff_user.get_role_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if staff_user.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'accounts:staff_detail' staff_user.pk %}" 
+                                                   class="btn btn-outline-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'accounts:staff_edit' staff_user.pk %}" 
+                                                   class="btn btn-outline-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'accounts:staff_deactivate' staff_user.pk %}" 
+                                                   class="btn btn-outline-{% if staff_user.is_active %}danger{% else %}success{% endif %}" 
+                                                   title="{% if staff_user.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                                    <i class="fas fa-{% if staff_user.is_active %}user-slash{% else %}user-check{% endif %}"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if users.has_other_pages %}
+                        <nav aria-label="Staff pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if users.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ users.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                            Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in users.paginator.page_range %}
+                                    {% if users.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > users.number|add:'-3' and num < users.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                                {{ num }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if users.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ users.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                                            Next
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <h5>No staff members found</h5>
+                            <p>Try adjusting your search criteria or register a new staff member.</p>
+                            <a href="{% url 'accounts:staff_register' %}" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Register First Staff Member
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Summary -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Staff by Role</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for value, label in role_choices %}
+                        <div class="col-md-3 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ label }}:</span>
+                                <span class="badge bg-secondary">
+                                    {{ users.paginator.object_list|length }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit form on filter change
+document.getElementById('role').addEventListener('change', function() {
+    this.form.submit();
+});
+
+document.getElementById('status').addEventListener('change', function() {
+    this.form.submit();
+});
+</script>
+{% endblock %}

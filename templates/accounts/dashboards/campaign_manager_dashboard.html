@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+
+{% block title %}Campaign Manager Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:list' %}">
+        <i class="fas fa-tasks"></i> Campaigns
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'campaigns:create' %}">
+        <i class="fas fa-plus"></i> New Campaign
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tasks"></i> Campaign Manager Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-primary ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-plus fa-3x mb-3"></i>
+                    <h5>Create Campaign</h5>
+                    <p>Start a new health campaign</p>
+                    <a href="{% url 'campaigns:create' %}" class="btn btn-light">
+                        <i class="fas fa-plus"></i> New Campaign
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x mb-3"></i>
+                    <h5>Manage Campaigns</h5>
+                    <p>View and edit campaigns</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-tasks"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <h5>Campaign Reports</h5>
+                    <p>View campaign analytics</p>
+                    <a href="{% url 'campaigns:list' %}" class="btn btn-light">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>Patient Overview</h5>
+                    <p>View all patients</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-users"></i> Patients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Campaign Manager Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Campaign Manager</strong>, you are responsible for planning, creating, and overseeing health campaigns from inception to completion.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Campaign Planning:</strong> Design and structure health campaigns
+                            <ul>
+                                <li>Define campaign objectives and scope</li>
+                                <li>Set campaign dates and locations</li>
+                                <li>Plan resource requirements</li>
+                            </ul>
+                        </li>
+                        <li><strong>Campaign Configuration:</strong> Set up campaign parameters
+                            <ul>
+                                <li>Configure available lab tests</li>
+                                <li>Set up drug formularies</li>
+                                <li>Define consent text and procedures</li>
+                                <li>Set patient capacity limits</li>
+                            </ul>
+                        </li>
+                        <li><strong>Campaign Monitoring:</strong> Track campaign progress
+                            <ul>
+                                <li>Monitor patient registration numbers</li>
+                                <li>Track consultation completion rates</li>
+                                <li>Review lab test utilization</li>
+                                <li>Analyze prescription patterns</li>
+                            </ul>
+                        </li>
+                        <li><strong>Reporting:</strong> Generate campaign reports
+                            <ul>
+                                <li>Patient demographics analysis</li>
+                                <li>Health outcomes tracking</li>
+                                <li>Resource utilization reports</li>
+                                <li>Campaign effectiveness metrics</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h6>Campaign Lifecycle Management:</h6>
+                    <ol>
+                        <li><strong>Planning:</strong> Define campaign goals and requirements</li>
+                        <li><strong>Setup:</strong> Configure lab tests, formulary, and parameters</li>
+                        <li><strong>Launch:</strong> Activate campaign for patient registration</li>
+                        <li><strong>Monitor:</strong> Track progress and adjust as needed</li>
+                        <li><strong>Complete:</strong> Close campaign and generate final reports</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Campaign Checklist</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Creating a New Campaign:</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Define campaign name and description
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Set start and end dates
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Specify health area/location
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Configure available lab tests
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Set up drug formulary
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Write consent text
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Set patient capacity (optional)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label">
+                            Activate campaign
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Campaign Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'campaigns:list' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Campaign Name</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search" 
+                                   placeholder="Enter campaign name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Status Overview -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Campaign Management Guide</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Campaign Status Types:</h6>
+                            <ul>
+                                <li><span class="badge bg-secondary">Draft</span> - Campaign being planned</li>
+                                <li><span class="badge bg-success">Active</span> - Campaign currently running</li>
+                                <li><span class="badge bg-primary">Completed</span> - Campaign finished successfully</li>
+                                <li><span class="badge bg-danger">Cancelled</span> - Campaign cancelled</li>
+                            </ul>
+                            
+                            <h6 class="mt-3">Best Practices:</h6>
+                            <ul>
+                                <li>Plan campaigns at least 2 weeks in advance</li>
+                                <li>Configure all lab tests and drugs before activation</li>
+                                <li>Monitor patient registration daily</li>
+                                <li>Review resource utilization weekly</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Key Performance Indicators:</h6>
+                            <ul>
+                                <li><strong>Patient Registration Rate:</strong> Patients per day</li>
+                                <li><strong>Consultation Completion:</strong> % of registered patients</li>
+                                <li><strong>Lab Test Utilization:</strong> Tests ordered vs. available</li>
+                                <li><strong>Prescription Rate:</strong> Medications dispensed</li>
+                                <li><strong>Campaign Efficiency:</strong> Patients per resource unit</li>
+                            </ul>
+                            
+                            <h6 class="mt-3">Reporting Schedule:</h6>
+                            <ul>
+                                <li><strong>Daily:</strong> Patient registration numbers</li>
+                                <li><strong>Weekly:</strong> Progress and resource utilization</li>
+                                <li><strong>Monthly:</strong> Comprehensive campaign analysis</li>
+                                <li><strong>End of Campaign:</strong> Final outcomes report</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'campaigns:create' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Create New Campaign
+                        </a>
+                        <a href="{% url 'campaigns:list' %}" class="btn btn-outline-primary btn-lg ms-2">
+                            <i class="fas fa-tasks"></i> Manage Existing Campaigns
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus quick search
+document.getElementById('quickSearch').focus();
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

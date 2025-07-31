@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Patient for Consultation - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'consultations:patient_search' %}">
+        <i class="fas fa-search"></i> Find Patient
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-search"></i> Find Patient for Consultation</h1>
+                <a href="{% url 'consultations:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Search Patients</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-8">
+                            {{ search_form.search_query.label_tag }}
+                            {{ search_form.search_query }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ search_form.status.label_tag }}
+                            {{ search_form.status }}
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-users"></i> Patients Ready for Consultation</h5>
+                    <span class="badge bg-primary">{{ patients|length }} patient{{ patients|length|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if patients %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Name</th>
+                                        <th>Age/Gender</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Campaign</th>
+                                        <th>Latest Vitals</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ patient.patient_id }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ patient.get_full_name }}</strong>
+                                            </div>
+                                            <small class="text-muted">
+                                                Registered: {{ patient.registration_date|date:"M d, Y" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {{ patient.age }} years<br>
+                                            <small class="text-muted">{{ patient.get_gender_display }}</small>
+                                        </td>
+                                        <td>
+                                            {% if patient.phone_number %}
+                                                {{ patient.phone_number }}
+                                            {% else %}
+                                                <span class="text-muted">Not provided</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if patient.status == 'registered' %}
+                                                <span class="badge bg-warning">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'vitals_taken' %}
+                                                <span class="badge bg-success">{{ patient.get_status_display }}</span>
+                                            {% elif patient.status == 'consultation_done' %}
+                                                <span class="badge bg-info">{{ patient.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ patient.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ patient.campaign.name }}<br>
+                                                <span class="text-muted">{{ patient.campaign.location }}</span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if patient.clinical_parameters %}
+                                                <small>
+                                                    <strong>BP:</strong> {{ patient.clinical_parameters.blood_pressure_systolic }}/{{ patient.clinical_parameters.blood_pressure_diastolic }}<br>
+                                                    <strong>Pulse:</strong> {{ patient.clinical_parameters.pulse_rate }} bpm<br>
+                                                    <strong>Temp:</strong> {{ patient.clinical_parameters.temperature }}°C
+                                                </small>
+                                            {% else %}
+                                                <span class="text-muted">No vitals recorded</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                {% if patient.status == 'vitals_taken' or patient.status == 'consultation_done' %}
+                                                    <a href="{% url 'consultations:create' patient_pk=patient.pk %}" 
+                                                       class="btn btn-success btn-sm">
+                                                        <i class="fas fa-stethoscope"></i> New Consultation
+                                                    </a>
+                                                {% else %}
+                                                    <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                        <i class="fas fa-exclamation-triangle"></i> Vitals Required
+                                                    </button>
+                                                {% endif %}
+                                                
+                                                <a href="{% url 'patients:detail' pk=patient.pk %}" 
+                                                   class="btn btn-outline-info btn-sm">
+                                                    <i class="fas fa-eye"></i> View Details
+                                                </a>
+                                                
+                                                {% if patient.status == 'vitals_taken' %}
+                                                    <a href="{% url 'patients:vitals_entry' patient_pk=patient.pk %}" 
+                                                       class="btn btn-outline-warning btn-sm">
+                                                        <i class="fas fa-heartbeat"></i> Update Vitals
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No patients found</h5>
+                            <p class="text-muted">
+                                {% if request.GET.search_query %}
+                                    No patients match your search criteria. Try adjusting your search terms.
+                                {% else %}
+                                    No patients are currently ready for consultation. Patients need to have their vitals recorded first.
+                                {% endif %}
+                            </p>
+                            <div class="mt-3">
+                                <a href="{% url 'patients:list' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-users"></i> View All Patients
+                                </a>
+                                <a href="{% url 'patients:vitals_dashboard' %}" class="btn btn-outline-warning">
+                                    <i class="fas fa-heartbeat"></i> Record Vitals
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if patients %}
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>{{ patients|length }}</h4>
+                    <p class="mb-0">Patients Found</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for patient in patients %}
+                            {% if patient.status == 'vitals_taken' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Ready for Consultation</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for patient in patients %}
+                            {% if patient.status == 'consultation_done' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Consultation Done</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        {% for patient in patients %}
+                            {% if patient.status == 'registered' %}{{ forloop.counter0|add:1 }}{% endif %}
+                        {% empty %}0{% endfor %}
+                    </h4>
+                    <p class="mb-0">Awaiting Vitals</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit search form on status change
+document.querySelector('select[name="status"]').addEventListener('change', function() {
+    this.form.submit();
+});
+
+// Highlight patients ready for consultation
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const statusBadge = row.querySelector('.badge');
+        if (statusBadge && statusBadge.textContent.includes('Vitals Taken')) {
+            row.classList.add('table-success');
+        }
+    });
+});
+</script>
+{% endblock %}

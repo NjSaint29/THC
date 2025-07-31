@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+
+{% block title %}Lab Technician Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:worksheet_create' %}">
+        <i class="fas fa-clipboard-list"></i> New Worksheet
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-flask"></i> Lab Technician Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-secondary ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-flask fa-3x mb-3"></i>
+                    <h3>{{ ordered_lab_orders.count }}</h3>
+                    <p>Lab Orders Awaiting Results</p>
+                    <a href="#ordered-lab-orders" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Enter Results
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h3>{{ completed_today.count }}</h3>
+                    <p>Completed Today</p>
+                    <a href="#completed-today" class="btn btn-light btn-sm">
+                        <i class="fas fa-history"></i> View Results
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Patient Search</h5>
+                </div>
+                <div class="card-body">
+                    <form class="row g-3" id="patient-search-form">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="patient-search"
+                                   placeholder="Enter Patient ID or Name" autocomplete="off">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted">
+                                <small>Search for patients to view their lab orders and results</small>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="search-results" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Orders Awaiting Results -->
+    <div class="row mb-4" id="ordered-lab-orders">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-flask text-primary"></i> Lab Orders Awaiting Results</h5>
+                    <span class="badge bg-primary fs-6">{{ ordered_lab_orders.count }} order{{ ordered_lab_orders.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if ordered_lab_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Test</th>
+                                        <th>Ordered By</th>
+                                        <th>Order Date</th>
+                                        <th>Urgency</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in ordered_lab_orders %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ order.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ order.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ order.get_test_name }}</strong>
+                                            {% if order.get_test_category != "Custom Test" %}
+                                                <br><small class="text-muted">{{ order.get_test_category|title }}</small>
+                                            {% endif %}
+                                            {% if order.clinical_indication %}
+                                                <br><small class="text-info">{{ order.clinical_indication|truncatechars:50 }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ order.consultation.doctor.get_full_name }}</td>
+                                        <td>{{ order.ordered_date|date:"M d, Y g:i A" }}</td>
+                                        <td>
+                                            {% if order.urgency == 'stat' %}
+                                                <span class="badge bg-danger">STAT</span>
+                                            {% elif order.urgency == 'urgent' %}
+                                                <span class="badge bg-warning">Urgent</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Routine</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                <a href="{% url 'laboratory:result_entry' lab_order_pk=order.id %}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Individual Entry
+                                                </a>
+                                                <a href="{% url 'laboratory:consultation_lab_results' consultation_pk=order.consultation.id %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-table"></i> Table Entry
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-flask fa-3x mb-3"></i>
+                            <p>No lab orders awaiting results at this time.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Completed Today -->
+    <div class="row mb-4" id="completed-today">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-check-circle text-success"></i> Completed Today</h5>
+                    <span class="badge bg-success fs-6">{{ completed_today.count }} test{{ completed_today.count|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if completed_today %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Test</th>
+                                        <th>Result</th>
+                                        <th>Completed</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in completed_today %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ order.consultation.patient.patient_id }}</strong><br>
+                                            <small>{{ order.consultation.patient.get_full_name }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ order.get_test_name }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if order.result %}
+                                                <span class="text-primary">{{ order.result.result_value }}</span>
+                                                {% if order.result.result_unit %}
+                                                    {{ order.result.result_unit }}
+                                                {% endif %}
+                                                {% if order.result.is_critical %}
+                                                    <span class="badge bg-danger ms-1">CRITICAL</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">Pending entry</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ order.updated_at|date:"M d, Y g:i A" }}</td>
+                                        <td>
+                                            {% if order.result %}
+                                                <span class="badge bg-success">Result Available</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending Result</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if order.result %}
+                                                <a href="{% url 'laboratory:result_entry' lab_order_pk=order.id %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i> View/Edit
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'laboratory:result_entry' lab_order_pk=order.id %}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i> Enter Result
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>No tests completed today.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Lab Technician Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Lab Technician</strong>, you are responsible for processing laboratory test orders, entering test results, and ensuring quality control in the laboratory.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Process Lab Orders:</strong> Review and process laboratory test orders from doctors</li>
+                        <li><strong>Enter Test Results:</strong> Input laboratory test results with proper interpretation:
+                            <ul>
+                                <li>Result values with appropriate units</li>
+                                <li>Reference ranges and normal values</li>
+                                <li>Clinical interpretation (normal, abnormal, critical)</li>
+                                <li>Sample quality assessment</li>
+                                <li>Technical notes and conclusions</li>
+                            </ul>
+                        </li>
+                        <li><strong>Critical Value Management:</strong> Identify and notify critical results immediately</li>
+                        <li><strong>Quality Control:</strong> Ensure sample quality and test accuracy</li>
+                        <li><strong>Worksheet Management:</strong> Organize work using laboratory worksheets</li>
+                    </ul>
+                    
+                    <h6>Laboratory Workflow:</h6>
+                    <ol>
+                        <li>Search for pending lab orders</li>
+                        <li>Review patient information and test requirements</li>
+                        <li>Process samples and perform tests</li>
+                        <li>Enter results with proper interpretation</li>
+                        <li>Handle critical values with immediate notification</li>
+                        <li>Complete quality control documentation</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-check"></i> Quick Reference</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Result Interpretation:</h6>
+                    <small>
+                        <strong>Normal:</strong> Within reference range<br>
+                        <strong>Abnormal Low:</strong> Below normal range<br>
+                        <strong>Abnormal High:</strong> Above normal range<br>
+                        <strong>Critical Low:</strong> Dangerously low<br>
+                        <strong>Critical High:</strong> Dangerously high<br>
+                        <strong>Inconclusive:</strong> Needs repeat<br><br>
+                        
+                        <strong>Sample Quality:</strong><br>
+                        • Good: Acceptable for testing<br>
+                        • Acceptable: Minor issues<br>
+                        • Poor: Repeat required<br>
+                        • Hemolyzed: Blood breakdown<br>
+                        • Clotted: Sample clotted<br>
+                        • Insufficient: Not enough sample<br><br>
+                        
+                        <strong>Urgency Levels:</strong><br>
+                        • Routine: Standard processing<br>
+                        • Urgent: Priority processing<br>
+                        • STAT: Immediate processing
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Order Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'laboratory:lab_order_search' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Patient ID or Test</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search_query" 
+                                   placeholder="Enter Patient ID or Test Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-play-circle"></i> Getting Started</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>First Time Using the System?</h6>
+                            <p>Follow these steps to process your first lab order:</p>
+                            <ol>
+                                <li>Click on "Search Orders" to find pending lab orders</li>
+                                <li>Look for orders with status "Ordered" - these need results</li>
+                                <li>Click "Enter Result" next to an order</li>
+                                <li>Fill in the test result with proper interpretation</li>
+                                <li>Mark critical values and notify if necessary</li>
+                                <li>Save the result to complete the order</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tips for Efficient Lab Work:</h6>
+                            <ul>
+                                <li>Use the "Pending Orders" filter to see orders needing results</li>
+                                <li>Process STAT orders first - they're urgent</li>
+                                <li>Always check sample quality before processing</li>
+                                <li>Critical values must be notified immediately</li>
+                                <li>Use worksheets to organize batch processing</li>
+                                <li>All results are automatically logged for audit</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-flask"></i> Start Processing Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Simplified lab workflow - no complex status management needed
+
+// Patient search functionality
+document.getElementById('patient-search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const query = document.getElementById('patient-search').value;
+    if (query.length >= 2) {
+        fetch(`/patients/search/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data.patients);
+            });
+    }
+});
+
+function displaySearchResults(patients) {
+    const resultsDiv = document.getElementById('search-results');
+    if (patients.length === 0) {
+        resultsDiv.innerHTML = '<div class="alert alert-info">No patients found.</div>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Patient ID</th><th>Name</th><th>Age/Gender</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>';
+
+    patients.forEach(patient => {
+        html += `
+            <tr>
+                <td><span class="badge bg-primary">${patient.patient_id}</span></td>
+                <td>${patient.name}</td>
+                <td>${patient.age} years, ${patient.gender}</td>
+                <td>${patient.campaign}</td>
+                <td>
+                    <a href="/laboratory/patient/${patient.id}/results/" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-flask"></i> View Lab Results
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += '</tbody></table></div>';
+    resultsDiv.innerHTML = html;
+}
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-primary ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> System Information</h5>
+                </div>
+                <div class="card-body">
+                    <p>Welcome to the Tiko Health Campaign Management System.</p>
+                    <p>Your role: <strong>{{ user.role }}</strong></p>
+                    <p>This system helps manage health outreach campaigns with digital forms, replacing traditional paper-based processes.</p>
+                    
+                    {% if user.role == "No Role Assigned" %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>No Role Assigned:</strong> Please contact your administrator to assign you a role.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+                    <p><strong>Role:</strong> {{ user.role }}</p>
+                    <p><strong>Last Login:</strong> {{ user.last_login|date:"M d, Y H:i" }}</p>
+                    
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users"></i> Available Roles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-user-shield text-danger"></i> <strong>Admin</strong> - Full system access
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-tasks text-primary"></i> <strong>Campaign Manager</strong> - Manages campaigns
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-user-plus text-success"></i> <strong>Registration Clerk</strong> - Registers patients
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-heartbeat text-info"></i> <strong>Vitals Clerk</strong> - Records vital signs
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-stethoscope text-warning"></i> <strong>Doctor</strong> - Medical consultations
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-flask text-secondary"></i> <strong>Lab Technician</strong> - Lab results
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-pills text-dark"></i> <strong>Pharmacy Clerk</strong> - Drug dispensing
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-chart-bar text-muted"></i> <strong>Data Analyst</strong> - Reports and analytics
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

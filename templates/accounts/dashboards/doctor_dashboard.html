@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Dashboard - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:dashboard' %}">
+        <i class="fas fa-stethoscope"></i> Consultations
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'consultations:patient_search' %}">
+        <i class="fas fa-search"></i> Find Patients
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'patients:list' %}">
+        <i class="fas fa-users"></i> All Patients
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-stethoscope"></i> Doctor Dashboard</h1>
+                <div class="text-muted">
+                    Welcome, {{ user.get_full_name|default:user.username }}
+                    <span class="badge bg-warning ms-2">{{ user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Find Patients</h5>
+                    <p>Search for patients to consult</p>
+                    <a href="{% url 'consultations:patient_search' %}" class="btn btn-light">
+                        <i class="fas fa-search"></i> Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-check fa-3x mb-3"></i>
+                    <h5>Ready for Consultation</h5>
+                    <p>Patients with vitals taken</p>
+                    <a href="{% url 'consultations:patient_search' %}?status=vitals_taken" class="btn btn-light">
+                        <i class="fas fa-user-check"></i> View Ready
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-stethoscope fa-3x mb-3"></i>
+                    <h5>Consultation Dashboard</h5>
+                    <p>Manage consultations</p>
+                    <a href="{% url 'consultations:dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h5>All Patients</h5>
+                    <p>View all patient records</p>
+                    <a href="{% url 'patients:list' %}" class="btn btn-light">
+                        <i class="fas fa-users"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Information -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Doctor Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Your Role:</h6>
+                    <p>As a <strong>Doctor</strong>, you are responsible for conducting medical consultations, diagnosing patients, ordering lab tests, and prescribing medications.</p>
+                    
+                    <h6>Key Responsibilities:</h6>
+                    <ul>
+                        <li><strong>Patient Consultation:</strong> Conduct comprehensive medical consultations including:
+                            <ul>
+                                <li>Taking medical history (chief complaint, present illness, past history)</li>
+                                <li>Performing physical examinations</li>
+                                <li>Making clinical assessments and diagnoses</li>
+                                <li>Developing treatment plans</li>
+                            </ul>
+                        </li>
+                        <li><strong>Lab Test Orders:</strong> Order appropriate laboratory tests based on clinical findings</li>
+                        <li><strong>Prescriptions:</strong> Prescribe medications from the campaign formulary</li>
+                        <li><strong>Referrals:</strong> Make referrals to specialists when necessary</li>
+                        <li><strong>Follow-up:</strong> Provide follow-up instructions and care plans</li>
+                    </ul>
+                    
+                    <h6>Consultation Workflow:</h6>
+                    <ol>
+                        <li>Search for patients ready for consultation (vitals taken)</li>
+                        <li>Review patient demographics and vital signs</li>
+                        <li>Conduct consultation and document findings</li>
+                        <li>Order lab tests if needed</li>
+                        <li>Prescribe medications from formulary</li>
+                        <li>Complete consultation and provide follow-up instructions</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Quick Reference</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Consultation Components:</h6>
+                    <small>
+                        <strong>History Taking:</strong><br>
+                        • Chief complaint<br>
+                        • History of present illness<br>
+                        • Past medical history<br>
+                        • Family history<br>
+                        • Social history<br><br>
+                        
+                        <strong>Physical Examination:</strong><br>
+                        • General appearance<br>
+                        • Systematic examination<br>
+                        • Vital signs review<br><br>
+                        
+                        <strong>Assessment & Plan:</strong><br>
+                        • Clinical assessment<br>
+                        • Working diagnosis<br>
+                        • Treatment plan<br>
+                        • Lab orders<br>
+                        • Prescriptions<br>
+                        • Follow-up instructions
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Quick Patient Search</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'consultations:patient_search' %}" method="get">
+                        <div class="mb-3">
+                            <label for="quickSearch" class="form-label">Patient ID or Name</label>
+                            <input type="text" class="form-control" id="quickSearch" name="search_query" 
+                                   placeholder="Enter Patient ID or Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-play-circle"></i> Getting Started</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>First Time Using the System?</h6>
+                            <p>Follow these steps to conduct your first consultation:</p>
+                            <ol>
+                                <li>Click on "Find Patients" to search for patients</li>
+                                <li>Look for patients with status "Vitals Taken" - they're ready for consultation</li>
+                                <li>Click "Consult" next to a patient to start the consultation</li>
+                                <li>Fill in the consultation form with your findings</li>
+                                <li>Order lab tests if needed from the campaign's available tests</li>
+                                <li>Prescribe medications from the campaign formulary</li>
+                                <li>Save the consultation</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Tips for Efficient Consultations:</h6>
+                            <ul>
+                                <li>Review patient vitals before starting the consultation</li>
+                                <li>Use the "Ready for Consultation" filter to find patients quickly</li>
+                                <li>Lab tests are limited to those configured for each campaign</li>
+                                <li>Prescriptions are limited to the campaign formulary</li>
+                                <li>You can edit consultations until they're marked as completed</li>
+                                <li>All consultations are automatically logged for audit purposes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'consultations:patient_search' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-stethoscope"></i> Start Consultations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus quick search
+document.getElementById('quickSearch').focus();
+
+// Handle quick search form
+document.getElementById('quickSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

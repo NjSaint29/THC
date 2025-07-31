@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'accounts:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'accounts:dashboard' %}">
+                    <i class="fas fa-flask"></i> Lab Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'laboratory:lab_order_search' %}">
+                    <i class="fas fa-search"></i> Search
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-table"></i> Lab Results Entry
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-table text-primary"></i> {{ title }}</h2>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Information -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Patient ID:</strong><br>
+                            <span class="text-primary">{{ patient.patient_id }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Name:</strong><br>
+                            {{ patient.get_full_name }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Age/Gender:</strong><br>
+                            {{ patient.age }} years, {{ patient.get_gender_display }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Consultation Date:</strong><br>
+                            {{ consultation.consultation_date|date:"M d, Y g:i A" }}
+                        </div>
+                    </div>
+                    {% if consultation.chief_complaint %}
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <strong>Chief Complaint:</strong><br>
+                            <span class="text-muted">{{ consultation.chief_complaint }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Results Entry Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-flask"></i> Laboratory Test Results</h5>
+                    <small class="text-muted">Enter results for all ordered tests below. Only tests with result values will be saved.</small>
+                </div>
+                <div class="card-body">
+                    {% if lab_orders_with_results %}
+                        <form method="post" id="labResultsForm">
+                            {% csrf_token %}
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th style="width: 20%;">Test</th>
+                                            <th style="width: 15%;">Result</th>
+                                            <th style="width: 10%;">Unit</th>
+                                            <th style="width: 15%;">Reference Range</th>
+                                            <th style="width: 12%;">Interpretation</th>
+                                            <th style="width: 20%;">Clinical Conclusion</th>
+                                            <th style="width: 8%;">Critical</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in lab_orders_with_results %}
+                                        {% with lab_order=item.lab_order result=item.result %}
+                                        <tr>
+                                            <!-- Test Name -->
+                                            <td>
+                                                <strong>{{ lab_order.get_test_name }}</strong>
+                                                {% if lab_order.get_test_category != "Custom Test" %}
+                                                    <br><small class="text-muted">{{ lab_order.get_test_category|title }}</small>
+                                                {% endif %}
+                                                {% if lab_order.clinical_indication %}
+                                                    <br><small class="text-info">{{ lab_order.clinical_indication|truncatechars:50 }}</small>
+                                                {% endif %}
+                                                {% if lab_order.urgency != 'routine' %}
+                                                    <br>
+                                                    {% if lab_order.urgency == 'stat' %}
+                                                        <span class="badge bg-danger">STAT</span>
+                                                    {% elif lab_order.urgency == 'urgent' %}
+                                                        <span class="badge bg-warning">Urgent</span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <!-- Result Value -->
+                                            <td>
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       name="result_value_{{ lab_order.id }}" 
+                                                       value="{% if result %}{{ result.result_value }}{% endif %}"
+                                                       placeholder="Enter result">
+                                            </td>
+                                            
+                                            <!-- Unit -->
+                                            <td>
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       name="result_unit_{{ lab_order.id }}" 
+                                                       value="{% if result %}{{ result.result_unit }}{% elif lab_order.lab_test and lab_order.lab_test.unit %}{{ lab_order.lab_test.unit }}{% endif %}"
+                                                       placeholder="Unit">
+                                            </td>
+                                            
+                                            <!-- Reference Range -->
+                                            <td>
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       name="reference_range_{{ lab_order.id }}" 
+                                                       value="{% if result %}{{ result.reference_range }}{% elif lab_order.lab_test and lab_order.lab_test.normal_range %}{{ lab_order.lab_test.normal_range }}{% endif %}"
+                                                       placeholder="Normal range">
+                                            </td>
+                                            
+                                            <!-- Interpretation -->
+                                            <td>
+                                                <select class="form-select" name="interpretation_{{ lab_order.id }}">
+                                                    <option value="normal" {% if result and result.interpretation == 'normal' %}selected{% endif %}>Normal</option>
+                                                    <option value="abnormal_low" {% if result and result.interpretation == 'abnormal_low' %}selected{% endif %}>Low</option>
+                                                    <option value="abnormal_high" {% if result and result.interpretation == 'abnormal_high' %}selected{% endif %}>High</option>
+                                                    <option value="critical_low" {% if result and result.interpretation == 'critical_low' %}selected{% endif %}>Critical Low</option>
+                                                    <option value="critical_high" {% if result and result.interpretation == 'critical_high' %}selected{% endif %}>Critical High</option>
+                                                </select>
+                                            </td>
+                                            
+                                            <!-- Clinical Conclusion -->
+                                            <td>
+                                                <textarea class="form-control" 
+                                                          name="clinical_conclusion_{{ lab_order.id }}" 
+                                                          rows="2" 
+                                                          placeholder="Clinical notes">{% if result %}{{ result.clinical_conclusion }}{% endif %}</textarea>
+                                            </td>
+                                            
+                                            <!-- Critical Flag -->
+                                            <td class="text-center">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" 
+                                                           type="checkbox" 
+                                                           name="is_critical_{{ lab_order.id }}" 
+                                                           {% if result and result.is_critical %}checked{% endif %}>
+                                                    <label class="form-check-label">
+                                                        <small>Critical</small>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Submit Buttons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                        <div>
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-save"></i> Save All Results
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-flask fa-3x mb-3"></i>
+                            <h5>No Lab Orders Found</h5>
+                            <p>There are no pending lab orders for this consultation.</p>
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-save functionality and validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('labResultsForm');
+    
+    if (form) {
+        // Add validation for critical values
+        const criticalCheckboxes = form.querySelectorAll('input[type="checkbox"][name*="is_critical"]');
+        const interpretationSelects = form.querySelectorAll('select[name*="interpretation"]');
+        
+        criticalCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    const orderId = this.name.split('_')[2];
+                    const interpretationSelect = form.querySelector(`select[name="interpretation_${orderId}"]`);
+                    if (interpretationSelect && interpretationSelect.value === 'normal') {
+                        interpretationSelect.value = 'critical_high';
+                    }
+                }
+            });
+        });
+        
+        interpretationSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                const orderId = this.name.split('_')[1];
+                const criticalCheckbox = form.querySelector(`input[name="is_critical_${orderId}"]`);
+                if (this.value.includes('critical') && criticalCheckbox) {
+                    criticalCheckbox.checked = true;
+                } else if (this.value === 'normal' && criticalCheckbox) {
+                    criticalCheckbox.checked = false;
+                }
+            });
+        });
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const resultInputs = form.querySelectorAll('input[name*="result_value"]');
+            let hasResults = false;
+            
+            resultInputs.forEach(function(input) {
+                if (input.value.trim()) {
+                    hasResults = true;
+                }
+            });
+            
+            if (!hasResults) {
+                e.preventDefault();
+                alert('Please enter at least one test result before saving.');
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

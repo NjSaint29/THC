@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+
+{% block title %}Lab Result Details - {{ lab_result.lab_order.lab_test.name }} - Tiko Health Campaign{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:dashboard' %}">
+        <i class="fas fa-flask"></i> Lab Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'laboratory:lab_order_search' %}">
+        <i class="fas fa-search"></i> Search Orders
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="#">
+        <i class="fas fa-file-medical"></i> Result Details
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-file-medical"></i> Laboratory Result Details</h1>
+                <div>
+                    {% if lab_result.status != 'verified' %}
+                        <a href="{% url 'laboratory:result_entry' lab_order_pk=lab_result.lab_order.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Result
+                        </a>
+                    {% endif %}
+                    {% if lab_result.is_critical and not lab_result.critical_notified_at %}
+                        <a href="{% url 'laboratory:critical_notification' result_pk=lab_result.pk %}" class="btn btn-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Notify Critical
+                        </a>
+                    {% endif %}
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                    <a href="{% url 'laboratory:lab_order_search' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Value Alert -->
+    {% if lab_result.is_critical %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-triangle"></i> CRITICAL VALUE ALERT</h5>
+                <p class="mb-2">This result contains critical values that require immediate attention.</p>
+                {% if lab_result.critical_notified_at %}
+                    <p class="mb-0"><strong>Notified:</strong> {{ lab_result.critical_notified_at|date:"M d, Y g:i A" }}</p>
+                {% else %}
+                    <p class="mb-0 text-warning"><strong>Status:</strong> Critical notification pending</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Patient & Test Information -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <p><strong>Patient ID:</strong><br>
+                                <span class="badge bg-primary fs-6">{{ lab_result.lab_order.consultation.patient.patient_id }}</span>
+                            </p>
+                            <p><strong>Name:</strong><br>{{ lab_result.lab_order.consultation.patient.get_full_name }}</p>
+                            <p><strong>Age/Gender:</strong><br>{{ lab_result.lab_order.consultation.patient.age }} years, {{ lab_result.lab_order.consultation.patient.get_gender_display }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Phone:</strong><br>{{ lab_result.lab_order.consultation.patient.phone_number|default:"Not provided" }}</p>
+                            <p><strong>Campaign:</strong><br>{{ lab_result.lab_order.consultation.patient.campaign.name }}</p>
+                            <p><strong>Location:</strong><br>{{ lab_result.lab_order.consultation.patient.campaign.location }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'patients:detail' pk=lab_result.lab_order.consultation.patient.pk %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user"></i> View Patient Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-flask"></i> Test Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Test Name:</strong><br>{{ lab_result.lab_order.lab_test.name }}</p>
+                    <p><strong>Category:</strong><br>{{ lab_result.lab_order.lab_test.category }}</p>
+                    <p><strong>Specimen Type:</strong><br>{{ lab_result.lab_order.lab_test.specimen_type|default:"Not specified" }}</p>
+                    <p><strong>Ordered Date:</strong><br>{{ lab_result.lab_order.ordered_date|date:"M d, Y g:i A" }}</p>
+                    <p><strong>Ordering Doctor:</strong><br>{{ lab_result.lab_order.consultation.doctor.get_full_name }}</p>
+                    <p><strong>Urgency:</strong><br>
+                        {% if lab_result.lab_order.urgency == 'stat' %}
+                            <span class="badge bg-danger">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% elif lab_result.lab_order.urgency == 'urgent' %}
+                            <span class="badge bg-warning">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ lab_result.lab_order.get_urgency_display }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clinical Context -->
+    {% if lab_result.lab_order.clinical_indication or lab_result.lab_order.notes %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-stethoscope"></i> Clinical Context</h5>
+                </div>
+                <div class="card-body">
+                    {% if lab_result.lab_order.clinical_indication %}
+                        <div class="mb-3">
+                            <strong>Clinical Indication:</strong>
+                            <p class="ms-3 border-start border-primary ps-3">{{ lab_result.lab_order.clinical_indication|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    {% if lab_result.lab_order.notes %}
+                        <div class="mb-3">
+                            <strong>Order Notes:</strong>
+                            <p class="ms-3 text-muted">{{ lab_result.lab_order.notes|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    <div class="mt-3">
+                        <a href="{% url 'consultations:detail' pk=lab_result.lab_order.consultation.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-stethoscope"></i> View Full Consultation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lab Result Details -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Test Results</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Result Value -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded {% if lab_result.is_critical %}border-danger bg-danger bg-opacity-10{% elif lab_result.interpretation == 'abnormal' %}border-warning bg-warning bg-opacity-10{% else %}border-success bg-success bg-opacity-10{% endif %}">
+                                <h3 class="mb-1 {% if lab_result.is_critical %}text-danger{% elif lab_result.interpretation == 'abnormal' %}text-warning{% else %}text-success{% endif %}">
+                                    {{ lab_result.result_value }}
+                                </h3>
+                                <p class="mb-0">{{ lab_result.result_unit|default:"" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <strong>Reference Range:</strong>
+                                    <p class="mb-1">{{ lab_result.reference_range|default:"Not specified" }}</p>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <strong>Interpretation:</strong>
+                                    {% if lab_result.interpretation == 'normal' %}
+                                        <span class="badge bg-success fs-6">{{ lab_result.get_interpretation_display }}</span>
+                                    {% elif lab_result.interpretation == 'abnormal' %}
+                                        <span class="badge bg-warning fs-6">{{ lab_result.get_interpretation_display }}</span>
+                                    {% elif lab_result.interpretation == 'critical' %}
+                                        <span class="badge bg-danger fs-6">{{ lab_result.get_interpretation_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary fs-6">{{ lab_result.get_interpretation_display|default:"Not specified" }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if lab_result.clinical_conclusion %}
+                                <div class="col-12">
+                                    <strong>Clinical Conclusion:</strong>
+                                    <p class="border-start border-info ps-3">{{ lab_result.clinical_conclusion|linebreaks }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Details -->
+                    <hr>
+                    <h6><i class="fas fa-cogs"></i> Technical Details</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Sample Quality:</strong> {{ lab_result.get_sample_quality_display|default:"Not assessed" }}</p>
+                            <p><strong>Test Method:</strong> {{ lab_result.test_method|default:"Standard method" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Result Date:</strong> {{ lab_result.result_date|date:"M d, Y g:i A" }}</p>
+                            <p><strong>Status:</strong> 
+                                {% if lab_result.status == 'completed' %}
+                                    <span class="badge bg-success">{{ lab_result.get_status_display }}</span>
+                                {% elif lab_result.status == 'verified' %}
+                                    <span class="badge bg-primary">{{ lab_result.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ lab_result.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if lab_result.technician_notes %}
+                    <div class="mt-3">
+                        <strong>Technician Notes:</strong>
+                        <p class="ms-3 text-muted">{{ lab_result.technician_notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Personnel & Verification -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-users"></i> Personnel Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Technician:</strong><br>
+                        {{ lab_result.technician.get_full_name }}<br>
+                        <small class="text-muted">{{ lab_result.technician.email }}</small>
+                    </div>
+                    
+                    {% if lab_result.verified_by %}
+                    <div class="mb-3">
+                        <strong>Verified By:</strong><br>
+                        {{ lab_result.verified_by.get_full_name }}<br>
+                        <small class="text-muted">{{ lab_result.verified_at|date:"M d, Y g:i A" }}</small>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <span class="text-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Verification pending
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <strong>Created:</strong><br>
+                        <small>{{ lab_result.created_at|date:"M d, Y g:i A" }}</small>
+                    </div>
+                    
+                    {% if lab_result.updated_at != lab_result.created_at %}
+                    <div class="mb-3">
+                        <strong>Last Updated:</strong><br>
+                        <small>{{ lab_result.updated_at|date:"M d, Y g:i A" }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quality Control -->
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-shield-alt"></i> Quality Control</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Sample Quality:</strong><br>
+                        {% if lab_result.sample_quality == 'acceptable' %}
+                            <span class="badge bg-success">{{ lab_result.get_sample_quality_display }}</span>
+                        {% elif lab_result.sample_quality == 'suboptimal' %}
+                            <span class="badge bg-warning">{{ lab_result.get_sample_quality_display }}</span>
+                        {% elif lab_result.sample_quality == 'rejected' %}
+                            <span class="badge bg-danger">{{ lab_result.get_sample_quality_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Not assessed</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if lab_result.is_critical %}
+                    <div class="mb-2">
+                        <span class="badge bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Critical Value
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            All results are automatically logged and auditable.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Results -->
+    {% if lab_result.lab_order.consultation.lab_orders.count > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Other Tests from Same Consultation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Test</th>
+                                    <th>Status</th>
+                                    <th>Result</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for other_order in lab_result.lab_order.consultation.lab_orders.all %}
+                                    {% if other_order.pk != lab_result.lab_order.pk %}
+                                    <tr>
+                                        <td>{{ other_order.lab_test.name }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ other_order.get_status_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if other_order.result.exists %}
+                                                {% for result in other_order.result.all %}
+                                                    {{ result.result_value }} {{ result.result_unit|default:"" }}
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if other_order.result.exists %}
+                                                {% for result in other_order.result.all %}
+                                                    <a href="{% url 'laboratory:result_detail' pk=result.pk %}" class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                {% endfor %}
+                                            {% else %}
+                                                <a href="{% url 'laboratory:result_entry' lab_order_pk=other_order.pk %}" class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-plus"></i> Enter
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Print functionality
+function printReport() {
+    window.print();
+}
+
+// Highlight critical values
+document.addEventListener('DOMContentLoaded', function() {
+    const criticalElements = document.querySelectorAll('.text-danger, .bg-danger');
+    criticalElements.forEach(element => {
+        element.style.fontWeight = 'bold';
+    });
+});
+</script>
+
+<style>
+@media print {
+    .btn, .card-header, nav, .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .badge {
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}
