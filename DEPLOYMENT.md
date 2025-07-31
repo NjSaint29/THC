@@ -44,8 +44,8 @@ Add the following environment variables in Render dashboard:
 ```
 SECRET_KEY=your-super-secret-key-here-make-it-long-and-random
 DEBUG=False
-ALLOWED_HOSTS=your-app-name.onrender.com
-DATABASE_URL=postgresql://username:password@hostname:port/database_name
+ALLOWED_HOSTS=thc-1.onrender.com
+DATABASE_URL=postgresql://thc_db_user:ULzyd2RToYcaUoMIRhfOQRBl3MZGY9Oe@dpg-d25pe8ndiees73eogl8g-a:5432/thc_db
 ```
 
 **Optional Variables:**
@@ -100,7 +100,7 @@ DJANGO_SETTINGS_MODULE=tiko_health_campaign.settings
 - Set to `False` for security
 
 **ALLOWED_HOSTS**: Domains allowed to serve the app
-- Set to your Render app URL: `your-app-name.onrender.com`
+- Set to your Render app URL: `thc-1.onrender.com`
 
 **DATABASE_URL**: PostgreSQL connection string
 - Format: `postgresql://username:password@hostname:port/database_name`
