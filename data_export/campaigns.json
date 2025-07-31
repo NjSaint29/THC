@@ -1,0 +1,53 @@
+[
+{
+  "model": "campaigns.campaign",
+  "pk": 3,
+  "fields": {
+    "name": "viva",
+    "description": "fqaefwfwf",
+    "start_date": "2025-07-28",
+    "end_date": "2025-08-12",
+    "health_area": "bb Tiko",
+    "consent_text": "fwefwefrgsahqw4",
+    "status": "active",
+    "created_by": 15,
+    "created_at": "2025-07-28T14:06:39.129Z",
+    "updated_at": "2025-07-28T14:06:39.129Z",
+    "max_patients": null
+  }
+},
+{
+  "model": "campaigns.campaign",
+  "pk": 2,
+  "fields": {
+    "name": "acaca",
+    "description": "sfdfgfdgdf",
+    "start_date": "2025-08-03",
+    "end_date": "2025-08-10",
+    "health_area": "zama",
+    "consent_text": "fsghdgfhs",
+    "status": "active",
+    "created_by": 15,
+    "created_at": "2025-07-28T13:58:25.177Z",
+    "updated_at": "2025-07-28T13:58:25.177Z",
+    "max_patients": null
+  }
+},
+{
+  "model": "campaigns.campaign",
+  "pk": 1,
+  "fields": {
+    "name": "Tiko zone Campaign",
+    "description": "",
+    "start_date": "2025-08-03",
+    "end_date": "2025-07-10",
+    "health_area": "Tiko",
+    "consent_text": "na",
+    "status": "active",
+    "created_by": 5,
+    "created_at": "2025-07-16T07:17:41.213Z",
+    "updated_at": "2025-07-16T07:17:41.213Z",
+    "max_patients": null
+  }
+}
+]

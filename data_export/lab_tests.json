@@ -1,0 +1,184 @@
+[
+{
+  "model": "campaigns.labtest",
+  "pk": 10,
+  "fields": {
+    "name": "ALT (SGPT)",
+    "code": "ALT",
+    "description": "Alanine aminotransferase",
+    "normal_range": "7-56 U/L",
+    "unit": "U/L",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.664Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 11,
+  "fields": {
+    "name": "AST (SGOT)",
+    "code": "AST",
+    "description": "Aspartate aminotransferase",
+    "normal_range": "10-40 U/L",
+    "unit": "U/L",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.665Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 4,
+  "fields": {
+    "name": "Complete Blood Count",
+    "code": "CBC",
+    "description": "Complete blood count with differential",
+    "normal_range": "See individual components",
+    "unit": "",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.641Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 9,
+  "fields": {
+    "name": "Creatinine",
+    "code": "CREA",
+    "description": "Serum creatinine",
+    "normal_range": "M: 0.7-1.3 mg/dL, F: 0.6-1.1 mg/dL",
+    "unit": "mg/dL",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.663Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 7,
+  "fields": {
+    "name": "Glucose (Fasting)",
+    "code": "GLU",
+    "description": "Fasting blood glucose",
+    "normal_range": "70-100 mg/dL",
+    "unit": "mg/dL",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.661Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 15,
+  "fields": {
+    "name": "HIV Rapid Test",
+    "code": "HIV",
+    "description": "HIV antibody rapid test",
+    "normal_range": "Non-reactive",
+    "unit": "",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.670Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 6,
+  "fields": {
+    "name": "Hematocrit",
+    "code": "HCT",
+    "description": "Hematocrit percentage",
+    "normal_range": "M: 41-50%, F: 36-44%",
+    "unit": "%",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.661Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 5,
+  "fields": {
+    "name": "Hemoglobin",
+    "code": "HGB",
+    "description": "Hemoglobin concentration",
+    "normal_range": "M: 13.5-17.5 g/dL, F: 12.0-15.5 g/dL",
+    "unit": "g/dL",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.660Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 14,
+  "fields": {
+    "name": "Malaria Rapid Test",
+    "code": "MALARIA",
+    "description": "Rapid malaria antigen test",
+    "normal_range": "Negative",
+    "unit": "",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.669Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 16,
+  "fields": {
+    "name": "Test Lab",
+    "code": "TEST",
+    "description": "Test",
+    "normal_range": "Normal",
+    "unit": "mg/dL",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:28:24.446Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 8,
+  "fields": {
+    "name": "Total Cholesterol",
+    "code": "CHOL",
+    "description": "Total cholesterol level",
+    "normal_range": "<200 mg/dL",
+    "unit": "mg/dL",
+    "category": "blood",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.662Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 13,
+  "fields": {
+    "name": "Stool Examination",
+    "code": "STOOL",
+    "description": "Stool microscopy and culture",
+    "normal_range": "No parasites, normal flora",
+    "unit": "",
+    "category": "stool",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.668Z"
+  }
+},
+{
+  "model": "campaigns.labtest",
+  "pk": 12,
+  "fields": {
+    "name": "Urinalysis",
+    "code": "URINE",
+    "description": "Complete urinalysis",
+    "normal_range": "See individual components",
+    "unit": "",
+    "category": "urine",
+    "is_active": true,
+    "created_at": "2025-07-31T18:26:36.666Z"
+  }
+}
+]

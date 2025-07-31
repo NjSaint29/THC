@@ -1,0 +1,94 @@
+[
+{
+  "model": "patients.clinicalparameters",
+  "pk": 1,
+  "fields": {
+    "patient": 2,
+    "weight": "70.00",
+    "height": "150.00",
+    "temperature": "36.0",
+    "systolic_bp": 165,
+    "diastolic_bp": 120,
+    "heart_rate": 90,
+    "glucose_type": "fbs",
+    "blood_glucose": "14.00",
+    "lmp": null,
+    "is_pregnant": false,
+    "gestational_age": null,
+    "age_at_first_pregnancy": null,
+    "notes": "iie\r\niudfowe\r\njowfoiwe",
+    "recorded_by": 2,
+    "recorded_at": "2025-07-16T11:54:35.130Z",
+    "updated_at": "2025-07-16T11:54:35.130Z"
+  }
+},
+{
+  "model": "patients.clinicalparameters",
+  "pk": 2,
+  "fields": {
+    "patient": 5,
+    "weight": "50.00",
+    "height": "280.00",
+    "temperature": "39.0",
+    "systolic_bp": 123,
+    "diastolic_bp": 80,
+    "heart_rate": 75,
+    "glucose_type": "fbs",
+    "blood_glucose": "14.10",
+    "lmp": null,
+    "is_pregnant": false,
+    "gestational_age": null,
+    "age_at_first_pregnancy": null,
+    "notes": "",
+    "recorded_by": 2,
+    "recorded_at": "2025-07-28T16:30:50.214Z",
+    "updated_at": "2025-07-28T16:30:50.214Z"
+  }
+},
+{
+  "model": "patients.clinicalparameters",
+  "pk": 3,
+  "fields": {
+    "patient": 4,
+    "weight": "80.00",
+    "height": "150.00",
+    "temperature": "36.0",
+    "systolic_bp": 120,
+    "diastolic_bp": 80,
+    "heart_rate": 61,
+    "glucose_type": "fbs",
+    "blood_glucose": "14.20",
+    "lmp": null,
+    "is_pregnant": false,
+    "gestational_age": null,
+    "age_at_first_pregnancy": null,
+    "notes": "",
+    "recorded_by": 2,
+    "recorded_at": "2025-07-28T17:19:31.548Z",
+    "updated_at": "2025-07-28T17:19:31.548Z"
+  }
+},
+{
+  "model": "patients.clinicalparameters",
+  "pk": 4,
+  "fields": {
+    "patient": 3,
+    "weight": "70.00",
+    "height": "182.00",
+    "temperature": "36.0",
+    "systolic_bp": 115,
+    "diastolic_bp": 78,
+    "heart_rate": 75,
+    "glucose_type": "fbs",
+    "blood_glucose": "11.20",
+    "lmp": null,
+    "is_pregnant": false,
+    "gestational_age": null,
+    "age_at_first_pregnancy": null,
+    "notes": "",
+    "recorded_by": 2,
+    "recorded_at": "2025-07-29T06:28:47.358Z",
+    "updated_at": "2025-07-29T06:28:47.359Z"
+  }
+}
+]

@@ -9,8 +9,8 @@ class UserAdmin(BaseUserAdmin):
     """
     Custom User Admin
     """
-    list_display = ('username', 'get_full_name_display', 'email', 'role', 'get_groups_display', 'is_in_correct_group', 'is_active', 'created_at')
-    list_filter = ('is_active', 'is_staff', 'role', 'groups', 'created_at')
+    list_display = ('username', 'get_full_name_display', 'email', 'role', 'is_active', 'created_at')
+    list_filter = ('is_active', 'is_staff', 'groups', 'created_at')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number')
     ordering = ('-created_at',)
     filter_horizontal = ('groups', 'user_permissions')
@@ -46,26 +46,34 @@ class UserAdmin(BaseUserAdmin):
         return obj.get_full_name() or obj.username
     get_full_name_display.short_description = 'Name'
 
-    def get_groups_display(self, obj):
-        """Display user's groups"""
-        groups = obj.groups.all()
-        if groups:
-            return ', '.join([g.name for g in groups])
-        return 'No groups'
-    get_groups_display.short_description = 'Groups'
-
-    def is_in_correct_group(self, obj):
-        """Check if user is in correct group for their role"""
-        return obj.is_in_correct_group()
-    is_in_correct_group.short_description = 'Correct Group'
-    is_in_correct_group.boolean = True
-
     def save_model(self, request, obj, form, change):
-        """Save model - signals will handle group assignment automatically"""
+        """Auto-assign user to appropriate group based on role"""
         super().save_model(request, obj, form, change)
 
-        # The post_save signal will automatically handle group assignment
-        # No need for manual group assignment here
+        # Assign to appropriate group
+        from django.contrib.auth.models import Group
+
+        # Remove from all groups first
+        obj.groups.clear()
+
+        # Map roles to group names
+        role_group_mapping = {
+            'registration_clerk': 'Registration Clerks',
+            'vitals_clerk': 'Vitals Clerks',
+            'doctor': 'Doctors',
+            'lab_technician': 'Lab Technicians',
+            'campaign_manager': 'Campaign Managers',
+            'data_analyst': 'Data Analysts',
+            'admin': 'Administrators',
+        }
+
+        group_name = role_group_mapping.get(obj.role)
+        if group_name:
+            try:
+                group = Group.objects.get(name=group_name)
+                obj.groups.add(group)
+            except Group.DoesNotExist:
+                pass
 
 
 @admin.register(AuditLog)

@@ -1,0 +1,26 @@
+{
+  "export_timestamp": "2025-07-31 23:50:19.014596",
+  "models": {
+    "Groups": 8,
+    "Permissions": 91,
+    "Users": 19,
+    "Campaigns": 3,
+    "LabTests": 13,
+    "Patients": 5,
+    "ClinicalParameters": 4,
+    "Consultations": 9,
+    "LabOrders": 3,
+    "Prescriptions": 0,
+    "LabResults": 1
+  },
+  "user_roles": {
+    "admin": 3,
+    "vitals_clerk": 2,
+    "registration_clerk": 5,
+    "campaign_manager": 2,
+    "doctor": 3,
+    "lab_technician": 2,
+    "pharmacy_clerk": 1,
+    "data_analyst": 1
+  }
+}

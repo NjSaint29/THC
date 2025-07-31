@@ -1,0 +1,27 @@
+[
+{
+  "model": "laboratory.labresult",
+  "pk": 1,
+  "fields": {
+    "lab_order": 3,
+    "result_value": "155454",
+    "result_unit": "nknsdn",
+    "reference_range": "ksdjc",
+    "interpretation": "critical_high",
+    "technician_notes": "",
+    "clinical_conclusion": "POSSITIVE",
+    "sample_quality": "good",
+    "test_method": null,
+    "is_critical": true,
+    "critical_notified": true,
+    "critical_notified_at": "2025-07-31T15:14:30Z",
+    "status": "completed",
+    "technician": 8,
+    "result_date": "2025-07-31T15:13:46.430Z",
+    "verified_by": null,
+    "verified_at": null,
+    "created_at": "2025-07-31T15:13:46.430Z",
+    "updated_at": "2025-07-31T15:15:16.729Z"
+  }
+}
+]
