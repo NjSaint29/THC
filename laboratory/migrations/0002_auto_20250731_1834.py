@@ -12,13 +12,12 @@ def create_initial_lab_tests(apps, schema_editor):
     # Check if lab tests already exist
     if not LabTest.objects.exists():
         lab_tests_data = [
-            # Hematology Tests
+            # Blood Tests
             {
                 'code': 'CBC',
                 'name': 'Complete Blood Count',
-                'category': 'hematology',
+                'category': 'blood',
                 'description': 'Complete blood count with differential',
-                'specimen_type': 'blood',
                 'normal_range': 'See individual components',
                 'unit': '',
                 'is_active': True
@@ -26,9 +25,8 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'HGB',
                 'name': 'Hemoglobin',
-                'category': 'hematology',
+                'category': 'blood',
                 'description': 'Hemoglobin concentration',
-                'specimen_type': 'blood',
                 'normal_range': 'M: 13.5-17.5 g/dL, F: 12.0-15.5 g/dL',
                 'unit': 'g/dL',
                 'is_active': True
@@ -36,21 +34,17 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'HCT',
                 'name': 'Hematocrit',
-                'category': 'hematology',
+                'category': 'blood',
                 'description': 'Hematocrit percentage',
-                'specimen_type': 'blood',
                 'normal_range': 'M: 41-50%, F: 36-44%',
                 'unit': '%',
                 'is_active': True
             },
-
-            # Chemistry Tests
             {
                 'code': 'GLU',
                 'name': 'Glucose (Fasting)',
-                'category': 'chemistry',
+                'category': 'blood',
                 'description': 'Fasting blood glucose',
-                'specimen_type': 'blood',
                 'normal_range': '70-100 mg/dL',
                 'unit': 'mg/dL',
                 'is_active': True
@@ -58,9 +52,8 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'CHOL',
                 'name': 'Total Cholesterol',
-                'category': 'chemistry',
+                'category': 'blood',
                 'description': 'Total cholesterol level',
-                'specimen_type': 'blood',
                 'normal_range': '<200 mg/dL',
                 'unit': 'mg/dL',
                 'is_active': True
@@ -68,21 +61,17 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'CREA',
                 'name': 'Creatinine',
-                'category': 'chemistry',
+                'category': 'blood',
                 'description': 'Serum creatinine',
-                'specimen_type': 'blood',
                 'normal_range': 'M: 0.7-1.3 mg/dL, F: 0.6-1.1 mg/dL',
                 'unit': 'mg/dL',
                 'is_active': True
             },
-
-            # Liver Function Tests
             {
                 'code': 'ALT',
                 'name': 'ALT (SGPT)',
-                'category': 'chemistry',
+                'category': 'blood',
                 'description': 'Alanine aminotransferase',
-                'specimen_type': 'blood',
                 'normal_range': '7-56 U/L',
                 'unit': 'U/L',
                 'is_active': True
@@ -90,31 +79,30 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'AST',
                 'name': 'AST (SGOT)',
-                'category': 'chemistry',
+                'category': 'blood',
                 'description': 'Aspartate aminotransferase',
-                'specimen_type': 'blood',
                 'normal_range': '10-40 U/L',
                 'unit': 'U/L',
                 'is_active': True
             },
 
-            # Microbiology Tests
+            # Urine Tests
             {
                 'code': 'URINE',
                 'name': 'Urinalysis',
-                'category': 'microbiology',
+                'category': 'urine',
                 'description': 'Complete urinalysis',
-                'specimen_type': 'urine',
                 'normal_range': 'See individual components',
                 'unit': '',
                 'is_active': True
             },
+
+            # Stool Tests
             {
                 'code': 'STOOL',
                 'name': 'Stool Examination',
-                'category': 'microbiology',
+                'category': 'stool',
                 'description': 'Stool microscopy and culture',
-                'specimen_type': 'stool',
                 'normal_range': 'No parasites, normal flora',
                 'unit': '',
                 'is_active': True
@@ -124,9 +112,8 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'MALARIA',
                 'name': 'Malaria Rapid Test',
-                'category': 'serology',
+                'category': 'blood',
                 'description': 'Rapid malaria antigen test',
-                'specimen_type': 'blood',
                 'normal_range': 'Negative',
                 'unit': '',
                 'is_active': True
@@ -134,9 +121,8 @@ def create_initial_lab_tests(apps, schema_editor):
             {
                 'code': 'HIV',
                 'name': 'HIV Rapid Test',
-                'category': 'serology',
+                'category': 'blood',
                 'description': 'HIV antibody rapid test',
-                'specimen_type': 'blood',
                 'normal_range': 'Non-reactive',
                 'unit': '',
                 'is_active': True
