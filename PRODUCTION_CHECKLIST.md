@@ -76,25 +76,39 @@ DJANGO_LOG_LEVEL=INFO
 2. **Initial Data Automatically Created**
    - Login to admin panel: `https://thc-1.onrender.com/admin/`
    - Default campaign "TIKO Health Campaign 2025" created
-   - Three default locations created
    - Complete lab test formulary with 12 common tests
+   - All user groups and permissions automatically set up
+   - Admin user assigned to Administrators group
    - Review and customize as needed
 
 #### **System Configuration:**
 1. **Campaign Setup**
-   - Create main health campaign
-   - Add campaign locations
-   - Configure campaign settings
+   - Default campaign automatically created and active
+   - Review and customize campaign details as needed
+   - Add additional campaigns if required
 
 2. **Lab Test Formulary**
-   - Add common lab tests
-   - Set normal ranges and units
-   - Configure test categories
+   - 12 common lab tests automatically created
+   - Normal ranges and units pre-configured
+   - Add additional tests as needed for your campaign
 
-3. **User Management**
+3. **User Groups and Permissions**
+   - All 8 user role groups automatically created:
+     * Registration Clerks - Patient registration
+     * Vitals Clerks - Patient vitals entry
+     * Doctors - Consultations and lab orders
+     * Lab Technicians - Lab result management
+     * Pharmacy Clerks - Prescription management
+     * Campaign Managers - Campaign oversight
+     * Data Analysts - Reporting and analytics
+     * Administrators - Full system access
+   - Admin user automatically assigned to Administrators group
+   - Role-based permissions fully configured
+
+4. **User Management**
    - Create staff accounts for each role
-   - Test role-based access
-   - Verify dashboard functionality
+   - Assign users to appropriate groups
+   - Test role-based access and verify dashboard functionality
 
 #### **Testing Checklist:**
 - [ ] Admin panel accessible
