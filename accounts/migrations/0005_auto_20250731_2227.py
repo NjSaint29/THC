@@ -20,10 +20,11 @@ def create_groups_and_permissions(apps, schema_editor):
     # Define groups and their permissions
     groups_permissions = {
         'Registration Clerks': [
-            # Patient permissions
+            # Patient permissions (including custom permission)
             'add_patient',
             'change_patient',
             'view_patient',
+            'can_register_patients',  # Custom permission for patient registration
             # Limited consultation view for patient lookup
             'view_consultation',
         ],
@@ -32,6 +33,10 @@ def create_groups_and_permissions(apps, schema_editor):
             # Patient permissions for vitals
             'view_patient',
             'change_patient',  # For updating vitals
+            # Clinical parameters permissions
+            'add_clinicalparameters',
+            'change_clinicalparameters',
+            'view_clinicalparameters',
             # Consultation permissions for vitals entry
             'view_consultation',
             'change_consultation',  # For updating vitals in consultation
@@ -41,11 +46,15 @@ def create_groups_and_permissions(apps, schema_editor):
             # Full patient access
             'view_patient',
             'change_patient',
-            # Full consultation access
+            # Clinical parameters access
+            'view_clinicalparameters',
+            # Full consultation access (including custom permissions)
             'add_consultation',
             'change_consultation',
             'view_consultation',
             'delete_consultation',
+            'can_conduct_consultations',  # Custom permission
+            'can_view_consultation_reports',  # Custom permission
             # Lab order permissions
             'add_laborder',
             'change_laborder',
@@ -53,19 +62,30 @@ def create_groups_and_permissions(apps, schema_editor):
             'delete_laborder',
             # Lab result viewing
             'view_labresult',
+            'can_view_lab_reports',  # Custom permission
+            # Prescription permissions
+            'add_prescription',
+            'change_prescription',
+            'view_prescription',
+            'delete_prescription',
         ],
 
         'Lab Technicians': [
             # Patient viewing for lab work
             'view_patient',
+            # Clinical parameters viewing
+            'view_clinicalparameters',
             # Lab order viewing
             'view_laborder',
             'change_laborder',  # For updating status
-            # Lab result management
+            # Lab result management (including custom permissions)
             'add_labresult',
             'change_labresult',
             'view_labresult',
             'delete_labresult',
+            'can_enter_lab_results',  # Custom permission
+            'can_verify_lab_results',  # Custom permission
+            'can_view_lab_reports',  # Custom permission
             # Consultation viewing for context
             'view_consultation',
         ],
@@ -76,40 +96,59 @@ def create_groups_and_permissions(apps, schema_editor):
             # Consultation viewing for prescriptions
             'view_consultation',
             'change_consultation',  # For updating prescription status
+            # Prescription management (including custom permissions)
+            'view_prescription',
+            'change_prescription',  # For updating dispensing status
+            'can_dispense_medications',  # Custom permission
         ],
 
         'Campaign Managers': [
-            # Campaign management
+            # Campaign management (including custom permissions)
             'add_campaign',
             'change_campaign',
             'view_campaign',
             'delete_campaign',
+            'can_manage_campaigns',  # Custom permission
+            'can_view_campaign_reports',  # Custom permission
             # Patient overview
             'view_patient',
+            'view_clinicalparameters',
             # Consultation overview
             'view_consultation',
+            'can_view_consultation_reports',  # Custom permission
             # Lab overview
             'view_laborder',
             'view_labresult',
+            'can_view_lab_reports',  # Custom permission
+            # Prescription overview
+            'view_prescription',
         ],
 
         'Data Analysts': [
-            # Read-only access to all data for reporting
+            # Read-only access to all data for reporting (including custom permissions)
             'view_patient',
+            'can_view_patient_reports',  # Custom permission
+            'view_clinicalparameters',
             'view_consultation',
+            'can_view_consultation_reports',  # Custom permission
             'view_laborder',
             'view_labresult',
+            'can_view_lab_reports',  # Custom permission
+            'view_prescription',
             'view_campaign',
+            'can_view_campaign_reports',  # Custom permission
         ],
 
         'Administrators': [
-            # Full access to everything
+            # Full access to everything (including all custom permissions)
             'add_user', 'change_user', 'view_user', 'delete_user',
-            'add_patient', 'change_patient', 'view_patient', 'delete_patient',
-            'add_consultation', 'change_consultation', 'view_consultation', 'delete_consultation',
+            'add_patient', 'change_patient', 'view_patient', 'delete_patient', 'can_register_patients', 'can_view_patient_reports',
+            'add_clinicalparameters', 'change_clinicalparameters', 'view_clinicalparameters', 'delete_clinicalparameters',
+            'add_consultation', 'change_consultation', 'view_consultation', 'delete_consultation', 'can_conduct_consultations', 'can_view_consultation_reports',
             'add_laborder', 'change_laborder', 'view_laborder', 'delete_laborder',
-            'add_labresult', 'change_labresult', 'view_labresult', 'delete_labresult',
-            'add_campaign', 'change_campaign', 'view_campaign', 'delete_campaign',
+            'add_labresult', 'change_labresult', 'view_labresult', 'delete_labresult', 'can_enter_lab_results', 'can_verify_lab_results', 'can_view_lab_reports',
+            'add_prescription', 'change_prescription', 'view_prescription', 'delete_prescription', 'can_dispense_medications',
+            'add_campaign', 'change_campaign', 'view_campaign', 'delete_campaign', 'can_manage_campaigns', 'can_view_campaign_reports',
         ],
     }
 
