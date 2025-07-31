@@ -80,15 +80,18 @@ DJANGO_SETTINGS_MODULE=tiko_health_campaign.settings
 
 ### Step 6: Post-Deployment Setup
 
-1. **Create Superuser**
-   - Go to Render dashboard → Shell
-   - Run: `python manage.py createsuperuser`
-   - Follow prompts to create admin user
+1. **Automatic Superuser Creation**
+   - A default superuser is automatically created during migration
+   - **Username**: `admin`
+   - **Email**: `admin@tikohealthcampaign.com`
+   - **Password**: `TikoAdmin2025!`
+   - **⚠️ IMPORTANT**: Change this password immediately after first login!
 
 2. **Initial Data Setup**
-   - Login to admin panel: `https://your-app-name.onrender.com/admin/`
-   - Create campaigns, locations, and lab test formulary
-   - Set up initial user accounts
+   - Login to admin panel: `https://thc-1.onrender.com/admin/`
+   - Initial campaign and lab test data is automatically created
+   - Review and customize the default data as needed
+   - Create additional user accounts for staff
 
 ### Environment Variables Explained
 

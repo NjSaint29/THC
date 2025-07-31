@@ -67,16 +67,18 @@ DJANGO_LOG_LEVEL=INFO
 ### 3. **Post-Deployment Tasks**
 
 #### **Initial Setup:**
-1. **Create Superuser**
-   ```bash
-   python manage.py createsuperuser
-   ```
+1. **Automatic Superuser Available**
+   - **Username**: `admin`
+   - **Email**: `admin@tikohealthcampaign.com`
+   - **Password**: `TikoAdmin2025!`
+   - **⚠️ CRITICAL**: Change password immediately after first login!
 
-2. **Load Initial Data**
+2. **Initial Data Automatically Created**
    - Login to admin panel: `https://thc-1.onrender.com/admin/`
-   - Create campaigns and locations
-   - Set up lab test formulary
-   - Create initial user accounts
+   - Default campaign "TIKO Health Campaign 2025" created
+   - Three default locations created
+   - Complete lab test formulary with 12 common tests
+   - Review and customize as needed
 
 #### **System Configuration:**
 1. **Campaign Setup**
