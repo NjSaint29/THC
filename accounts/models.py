@@ -80,6 +80,23 @@ class User(AbstractUser):
         """Get the display name for the user's role"""
         return dict(UserRole.choices).get(self.role, self.role)
 
+    def get_expected_group_name(self):
+        """Get the expected group name for this user's role"""
+        from accounts.signals import ROLE_GROUP_MAPPING
+        return ROLE_GROUP_MAPPING.get(self.role)
+
+    def is_in_correct_group(self):
+        """Check if user is in the correct group for their role"""
+        expected_group_name = self.get_expected_group_name()
+        if not expected_group_name:
+            return False
+        return self.groups.filter(name=expected_group_name).exists()
+
+    def fix_group_assignment(self):
+        """Fix the user's group assignment based on their role"""
+        from accounts.signals import ensure_user_has_correct_permissions
+        return ensure_user_has_correct_permissions(self)
+
 
 class AuditLog(models.Model):
     """
