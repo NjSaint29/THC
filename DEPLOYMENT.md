@@ -29,7 +29,7 @@
 **Build & Deploy Settings:**
 - **Build Command**:
   ```bash
-  pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py setup_production_data
+  pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
   ```
 - **Start Command**: 
   ```bash
@@ -80,21 +80,23 @@ DJANGO_SETTINGS_MODULE=tiko_health_campaign.settings
 
 ### Step 6: Post-Deployment Setup
 
-1. **Automatic Data Import and Setup**
-   - All SQLite data automatically imported during build process
-   - All user roles and permissions automatically configured
-   - 19 users with various roles imported from development database
-   - 5 patients, 9 consultations, and lab data imported
-   - All groups and permissions properly set up
-
-2. **Admin Access Available**
-   - Multiple admin users available from imported data
-   - **Primary Admin**: `admin` / `TikoAdmin2025!`
-   - **⚠️ CRITICAL**: Change passwords immediately after first login!
+1. **Basic System Setup**
+   - Admin user automatically created during migration
+   - **Admin Credentials**: `admin` / `TikoAdmin2025!`
+   - **⚠️ CRITICAL**: Change password immediately after first login!
    - Login to admin panel: `https://thc-1.onrender.com/admin/`
 
+2. **Data Import (Manual Step)**
+   - After deployment, run the data import command:
+   ```bash
+   python manage.py setup_production_data
+   ```
+   - This will import all SQLite data and set up user roles
+   - All 19 users, patients, consultations, and lab data will be imported
+   - All groups and permissions will be configured
+
 3. **Complete System Ready**
-   - All user roles working with proper permissions
+   - All user roles will work with proper permissions
    - Patient data and consultation history preserved
    - Lab tests and results maintained
    - Campaign data imported and active

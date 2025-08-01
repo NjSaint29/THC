@@ -31,25 +31,33 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         data_dir = options['data_dir']
         skip_import = options['skip_import']
-        
+
         self.stdout.write('Setting up production data and permissions...')
-        
-        # Step 1: Set up groups and permissions
-        self.setup_groups_and_permissions()
-        
-        # Step 2: Import data if requested
-        if not skip_import:
-            self.import_data(data_dir)
-        
-        # Step 3: Fix user roles and permissions
-        self.fix_user_permissions()
-        
-        # Step 4: Create admin user if needed
-        self.ensure_admin_user()
-        
-        self.stdout.write(
-            self.style.SUCCESS('Production setup completed successfully!')
-        )
+
+        try:
+            # Step 1: Set up groups and permissions
+            self.setup_groups_and_permissions()
+
+            # Step 2: Import data if requested
+            if not skip_import:
+                self.import_data(data_dir)
+
+            # Step 3: Fix user roles and permissions
+            self.fix_user_permissions()
+
+            # Step 4: Create admin user if needed
+            self.ensure_admin_user()
+
+            self.stdout.write(
+                self.style.SUCCESS('Production setup completed successfully!')
+            )
+
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Error during setup: {str(e)}')
+            )
+            # Continue anyway to ensure basic functionality
+            self.ensure_admin_user()
 
     def setup_groups_and_permissions(self):
         """Set up all groups and their permissions"""
