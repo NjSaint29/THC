@@ -199,6 +199,14 @@ class LabOrderForm(forms.ModelForm):
             instance.lab_test = None
             instance.custom_test_name = test_name or ""
 
+        # Set default status if not set
+        if not instance.lab_status:
+            instance.lab_status = 'ordered'
+
+        # Set doctor if available from form context
+        if not instance.doctor_id and hasattr(self, '_doctor'):
+            instance.doctor = self._doctor
+
         if commit:
             instance.save()
         return instance
@@ -344,9 +352,9 @@ LabOrderFormSet = inlineformset_factory(
     Consultation,
     LabOrder,
     form=LabOrderForm,
-    extra=1,
+    extra=3,  # Allow multiple lab orders
     can_delete=True,
-    fields=['lab_test', 'custom_test_name', 'urgency', 'clinical_indication', 'notes']
+    fields=['test_name', 'common_test', 'urgency', 'clinical_indication', 'notes']
 )
 
 PrescriptionFormSet = inlineformset_factory(

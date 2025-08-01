@@ -122,7 +122,7 @@ class Command(BaseCommand):
 
     def setup_all_groups_and_permissions(self):
         self.stdout.write('\n👥 Setting up all groups and permissions...')
-        
+
         groups_permissions = {
             'Registration Clerks': [
                 'patients.add_patient',
@@ -148,11 +148,13 @@ class Command(BaseCommand):
                 'consultations.change_consultation',
                 'consultations.view_consultation',
                 'consultations.delete_consultation',
+                'consultations.can_conduct_consultations',
                 'consultations.add_laborder',
                 'consultations.change_laborder',
                 'consultations.view_laborder',
                 'consultations.delete_laborder',
                 'laboratory.view_labresult',
+                'laboratory.can_view_lab_reports',
                 'consultations.add_prescription',
                 'consultations.change_prescription',
                 'consultations.view_prescription',
@@ -167,7 +169,38 @@ class Command(BaseCommand):
                 'laboratory.change_labresult',
                 'laboratory.view_labresult',
                 'laboratory.delete_labresult',
+                'laboratory.can_enter_lab_results',
+                'laboratory.can_verify_lab_results',
+                'laboratory.can_view_lab_reports',
                 'consultations.view_consultation',
+            ],
+            'Pharmacy Clerks': [
+                'patients.view_patient',
+                'consultations.view_consultation',
+                'consultations.change_consultation',
+                'consultations.view_prescription',
+                'consultations.change_prescription',
+                'consultations.can_dispense_medications',
+            ],
+            'Campaign Managers': [
+                'campaigns.add_campaign',
+                'campaigns.change_campaign',
+                'campaigns.view_campaign',
+                'campaigns.delete_campaign',
+                'campaigns.can_manage_campaigns',
+                'patients.view_patient',
+                'consultations.view_consultation',
+                'laboratory.view_labresult',
+                'consultations.view_prescription',
+            ],
+            'Data Analysts': [
+                'patients.view_patient',
+                'patients.view_clinicalparameters',
+                'consultations.view_consultation',
+                'consultations.view_laborder',
+                'laboratory.view_labresult',
+                'consultations.view_prescription',
+                'campaigns.view_campaign',
             ],
         }
         
