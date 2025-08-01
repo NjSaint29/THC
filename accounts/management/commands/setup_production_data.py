@@ -275,25 +275,61 @@ class Command(BaseCommand):
 
     def ensure_admin_user(self):
         """Ensure there's at least one admin user"""
-        admin_users = User.objects.filter(role='admin')
-        if not admin_users.exists():
-            self.stdout.write('Creating default admin user...')
-            admin_user = User.objects.create_user(
-                username='admin',
-                email='admin@tikohealthcampaign.com',
-                password='TikoAdmin2025!',
-                first_name='System',
-                last_name='Administrator',
-                role='admin',
-                is_staff=True,
-                is_superuser=True,
-                is_active=True
-            )
-            
-            # Add to Administrators group
-            admin_group = Group.objects.get(name='Administrators')
-            admin_user.groups.add(admin_group)
-            
-            self.stdout.write('Default admin user created successfully')
-        else:
-            self.stdout.write(f'Found {admin_users.count()} admin users')
+        try:
+            admin_users = User.objects.filter(role='admin')
+            if not admin_users.exists():
+                self.stdout.write('Creating default admin user...')
+                admin_user = User.objects.create_user(
+                    username='admin',
+                    email='admin@tikohealthcampaign.com',
+                    password='TikoAdmin2025!',
+                    first_name='System',
+                    last_name='Administrator',
+                    role='admin',
+                    is_staff=True,
+                    is_superuser=True,
+                    is_active=True
+                )
+
+                # Add to Administrators group
+                try:
+                    admin_group = Group.objects.get(name='Administrators')
+                    admin_user.groups.add(admin_group)
+                    self.stdout.write('Admin user added to Administrators group')
+                except Group.DoesNotExist:
+                    self.stdout.write('Warning: Administrators group not found')
+
+                self.stdout.write('Default admin user created successfully')
+            else:
+                self.stdout.write(f'Found {admin_users.count()} admin users')
+
+                # Ensure existing admin users have correct permissions
+                for admin_user in admin_users:
+                    if not admin_user.is_superuser or not admin_user.is_staff:
+                        admin_user.is_superuser = True
+                        admin_user.is_staff = True
+                        admin_user.save()
+                        self.stdout.write(f'Updated admin privileges for {admin_user.username}')
+
+        except Exception as e:
+            self.stdout.write(f'Error ensuring admin user: {str(e)}')
+            # Try to create basic admin anyway
+            try:
+                admin_user, created = User.objects.get_or_create(
+                    username='admin',
+                    defaults={
+                        'email': 'admin@tikohealthcampaign.com',
+                        'first_name': 'System',
+                        'last_name': 'Administrator',
+                        'role': 'admin',
+                        'is_staff': True,
+                        'is_superuser': True,
+                        'is_active': True,
+                    }
+                )
+                if created:
+                    admin_user.set_password('TikoAdmin2025!')
+                    admin_user.save()
+                    self.stdout.write('Emergency admin user created')
+            except Exception as e2:
+                self.stdout.write(f'Failed to create emergency admin: {str(e2)}')
