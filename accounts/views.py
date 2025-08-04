@@ -220,20 +220,98 @@ def pharmacy_dashboard(request):
 
 @login_required
 def data_analyst_dashboard(request):
-    """Dashboard for data analysts"""
+    """Dashboard for data analysts with comprehensive analytics"""
     if request.user.role != UserRole.DATA_ANALYST:
         return redirect('accounts:dashboard')
 
-    # Get analytics data
+    # Get comprehensive analytics data
     from patients.models import Patient
-    from consultations.models import Consultation
+    from consultations.models import Consultation, LabOrder, Prescription
     from laboratory.models import LabResult
+    from campaigns.models import Campaign
+    from django.db.models import Count, Q
+    from django.utils import timezone
+    from datetime import datetime, timedelta
+    import json
+
+    # Basic counts
+    total_patients = Patient.objects.count()
+    total_consultations = Consultation.objects.count()
+    total_lab_orders = LabOrder.objects.count()
+    total_lab_results = LabResult.objects.count()
+    total_prescriptions = Prescription.objects.count()
+
+    # Demographics analysis
+    gender_distribution = Patient.objects.values('gender').annotate(count=Count('id')).order_by('gender')
+    age_groups = []
+
+    # Calculate age groups
+    for patient in Patient.objects.all():
+        age = patient.age
+        if age < 18:
+            age_group = 'Under 18'
+        elif age < 30:
+            age_group = '18-29'
+        elif age < 50:
+            age_group = '30-49'
+        elif age < 65:
+            age_group = '50-64'
+        else:
+            age_group = '65+'
+        age_groups.append(age_group)
+
+    # Count age groups
+    age_distribution = {}
+    for age_group in age_groups:
+        age_distribution[age_group] = age_distribution.get(age_group, 0) + 1
+
+    # Most common diagnoses
+    diagnoses = Consultation.objects.exclude(
+        Q(working_diagnosis__isnull=True) | Q(working_diagnosis__exact='')
+    ).values('working_diagnosis').annotate(count=Count('id')).order_by('-count')[:10]
+
+    # Lab test patterns
+    lab_test_patterns = LabOrder.objects.values('lab_test__name').annotate(
+        count=Count('id')
+    ).order_by('-count')[:10]
+
+    # Custom lab tests
+    custom_lab_tests = LabOrder.objects.exclude(
+        Q(custom_test_name__isnull=True) | Q(custom_test_name__exact='')
+    ).values('custom_test_name').annotate(count=Count('id')).order_by('-count')[:5]
+
+    # Consultation trends (last 30 days)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    consultation_trends = []
+    for i in range(30):
+        date = thirty_days_ago + timedelta(days=i)
+        count = Consultation.objects.filter(
+            consultation_date__date=date.date()
+        ).count()
+        consultation_trends.append({
+            'date': date.strftime('%Y-%m-%d'),
+            'count': count
+        })
 
     context = {
-        'total_patients': Patient.objects.count(),
-        'total_consultations': Consultation.objects.count(),
-        'total_lab_results': LabResult.objects.count(),
-        'total_prescriptions': 0,  # Would be from pharmacy module
+        'total_patients': total_patients,
+        'total_consultations': total_consultations,
+        'total_lab_orders': total_lab_orders,
+        'total_lab_results': total_lab_results,
+        'total_prescriptions': total_prescriptions,
+
+        # Analytics data for charts
+        'gender_distribution': json.dumps(list(gender_distribution)),
+        'age_distribution': json.dumps(age_distribution),
+        'diagnoses': json.dumps(list(diagnoses)),
+        'lab_test_patterns': json.dumps(list(lab_test_patterns)),
+        'custom_lab_tests': json.dumps(list(custom_lab_tests)),
+        'consultation_trends': json.dumps(consultation_trends),
+
+        # Summary statistics
+        'avg_consultations_per_patient': round(total_consultations / max(total_patients, 1), 2),
+        'lab_order_rate': round((total_lab_orders / max(total_consultations, 1)) * 100, 1),
+        'lab_completion_rate': round((total_lab_results / max(total_lab_orders, 1)) * 100, 1),
     }
 
     return render(request, 'accounts/dashboards/data_analyst_dashboard.html', context)

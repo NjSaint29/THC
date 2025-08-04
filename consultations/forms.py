@@ -203,13 +203,25 @@ class LabOrderForm(forms.ModelForm):
         if not instance.lab_status:
             instance.lab_status = 'ordered'
 
-        # Set doctor if available from form context
-        if not instance.doctor_id and hasattr(self, '_doctor'):
-            instance.doctor = self._doctor
+        # Set legacy status field for compatibility
+        if not instance.status:
+            instance.status = 'ordered'
 
         if commit:
             instance.save()
         return instance
+
+    def has_meaningful_data(self):
+        """Check if the form has meaningful data for lab order creation"""
+        if not self.is_valid():
+            return False
+
+        test_name = self.cleaned_data.get('test_name', '').strip()
+        common_test = self.cleaned_data.get('common_test')
+        clinical_indication = self.cleaned_data.get('clinical_indication', '').strip()
+
+        # Form has meaningful data if it has a test name or common test
+        return bool(test_name or common_test or clinical_indication)
 
 
 class PrescriptionForm(forms.ModelForm):

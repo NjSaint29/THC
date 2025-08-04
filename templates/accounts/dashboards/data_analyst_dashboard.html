@@ -214,44 +214,154 @@
         </div>
     </div>
 
-    <!-- Sample Analytics -->
+    <!-- Comprehensive Analytics Dashboard -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5><i class="fas fa-chart-line"></i> Sample Analytics Dashboard</h5>
+                    <h5><i class="fas fa-chart-line"></i> Comprehensive Analytics Dashboard</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="card bg-light">
+                    <!-- Key Performance Indicators -->
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <div class="card bg-primary text-white">
                                 <div class="card-body text-center">
-                                    <h3 class="text-primary">{{ total_patients|default:0 }}</h3>
+                                    <h3>{{ total_patients|default:0 }}</h3>
                                     <p class="mb-0">Total Patients</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card bg-light">
+                        <div class="col-md-2">
+                            <div class="card bg-success text-white">
                                 <div class="card-body text-center">
-                                    <h3 class="text-success">{{ total_consultations|default:0 }}</h3>
+                                    <h3>{{ total_consultations|default:0 }}</h3>
                                     <p class="mb-0">Consultations</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card bg-light">
+                        <div class="col-md-2">
+                            <div class="card bg-info text-white">
                                 <div class="card-body text-center">
-                                    <h3 class="text-info">{{ total_lab_results|default:0 }}</h3>
+                                    <h3>{{ total_lab_orders|default:0 }}</h3>
+                                    <p class="mb-0">Lab Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_lab_results|default:0 }}</h3>
                                     <p class="mb-0">Lab Results</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_prescriptions|default:0 }}</h3>
+                                    <p class="mb-0">Prescriptions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ avg_consultations_per_patient }}</h3>
+                                    <p class="mb-0">Avg Consults/Patient</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 1 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-chart-pie"></i> Patient Gender Distribution</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="genderChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-chart-bar"></i> Age Group Distribution</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="ageChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 2 -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-chart-line"></i> Consultation Trends (Last 30 Days)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="consultationTrendsChart" width="800" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 3 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-stethoscope"></i> Most Common Diagnoses</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="diagnosesChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-flask"></i> Most Ordered Lab Tests</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="labTestsChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="row">
+                        <div class="col-md-4">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h3 class="text-warning">{{ total_prescriptions|default:0 }}</h3>
-                                    <p class="mb-0">Prescriptions</p>
+                                    <h4 class="text-info">{{ lab_order_rate }}%</h4>
+                                    <p class="mb-0">Lab Order Rate</p>
+                                    <small class="text-muted">Consultations with lab orders</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-success">{{ lab_completion_rate }}%</h4>
+                                    <p class="mb-0">Lab Completion Rate</p>
+                                    <small class="text-muted">Lab orders with results</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h4 class="text-primary">{{ avg_consultations_per_patient }}</h4>
+                                    <p class="mb-0">Avg Consultations</p>
+                                    <small class="text-muted">Per patient</small>
                                 </div>
                             </div>
                         </div>
@@ -301,15 +411,253 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block extra_js %}
 <script>
-// Sample chart placeholder - in a real implementation, you would use Chart.js or similar
+// Data Analyst Dashboard with Chart.js Implementation
 console.log('Data Analyst Dashboard Loaded');
 
-// Placeholder for future chart implementations
-function generateChart(type, data) {
-    console.log(`Generating ${type} chart with data:`, data);
-    // Implementation would go here
+// Parse data from Django context
+const genderData = {{ gender_distribution|safe }};
+const ageData = {{ age_distribution|safe }};
+const diagnosesData = {{ diagnoses|safe }};
+const labTestsData = {{ lab_test_patterns|safe }};
+const consultationTrends = {{ consultation_trends|safe }};
+
+// Color palettes
+const colors = {
+    primary: ['#007bff', '#6c757d', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#e83e8c'],
+    background: ['rgba(0,123,255,0.2)', 'rgba(108,117,125,0.2)', 'rgba(40,167,69,0.2)', 'rgba(220,53,69,0.2)', 'rgba(255,193,7,0.2)', 'rgba(23,162,184,0.2)', 'rgba(111,66,193,0.2)', 'rgba(232,62,140,0.2)']
+};
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeGenderChart();
+    initializeAgeChart();
+    initializeConsultationTrendsChart();
+    initializeDiagnosesChart();
+    initializeLabTestsChart();
+});
+
+function initializeGenderChart() {
+    const ctx = document.getElementById('genderChart').getContext('2d');
+
+    const labels = genderData.map(item => item.gender || 'Not Specified');
+    const data = genderData.map(item => item.count);
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.primary.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
+
+function initializeAgeChart() {
+    const ctx = document.getElementById('ageChart').getContext('2d');
+
+    const labels = Object.keys(ageData);
+    const data = Object.values(ageData);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Number of Patients',
+                data: data,
+                backgroundColor: colors.background[1],
+                borderColor: colors.primary[1],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function initializeConsultationTrendsChart() {
+    const ctx = document.getElementById('consultationTrendsChart').getContext('2d');
+
+    const labels = consultationTrends.map(item => {
+        const date = new Date(item.date);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const data = consultationTrends.map(item => item.count);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Daily Consultations',
+                data: data,
+                borderColor: colors.primary[2],
+                backgroundColor: colors.background[2],
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function initializeDiagnosesChart() {
+    const ctx = document.getElementById('diagnosesChart').getContext('2d');
+
+    const labels = diagnosesData.map(item => {
+        const diagnosis = item.working_diagnosis || 'Not Specified';
+        return diagnosis.length > 20 ? diagnosis.substring(0, 20) + '...' : diagnosis;
+    });
+    const data = diagnosesData.map(item => item.count);
+
+    new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Number of Cases',
+                data: data,
+                backgroundColor: colors.background[3],
+                borderColor: colors.primary[3],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const fullDiagnosis = diagnosesData[context[0].dataIndex].working_diagnosis;
+                            return fullDiagnosis || 'Not Specified';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initializeLabTestsChart() {
+    const ctx = document.getElementById('labTestsChart').getContext('2d');
+
+    const labels = labTestsData.map(item => {
+        const testName = item.lab_test__name || 'Custom Test';
+        return testName.length > 15 ? testName.substring(0, 15) + '...' : testName;
+    });
+    const data = labTestsData.map(item => item.count);
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.primary.slice(0, labels.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} orders (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Export functions for potential future use
+window.dashboardCharts = {
+    generateReport: function() {
+        alert('Report generation feature coming soon!');
+    },
+    exportData: function(format) {
+        alert(`Data export in ${format} format coming soon!`);
+    },
+    refreshCharts: function() {
+        location.reload();
+    }
+};
 </script>
 {% endblock %}

@@ -164,6 +164,7 @@ def consultation_create(request, patient_pk):
                         lab_order.clinical_indication = form.cleaned_data.get('clinical_indication') or request.POST.get(f'{prefix}-clinical_indication', '')
                         lab_order.notes = form.cleaned_data.get('notes') or request.POST.get(f'{prefix}-notes', '')
                         lab_order.lab_status = 'ordered'
+                        lab_order.status = 'ordered'  # Set legacy status field too
                         lab_order.save()
                         lab_orders.append(lab_order)
 
